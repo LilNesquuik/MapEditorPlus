@@ -48,4 +48,7 @@ public enum BlockType
 	Text = 8,
 	Interactable = 9,
 	Waypoint = 10,
+	Capybara = 11,
+	BulkheadDoor = 15,
+	Clutter = 16,
 }
