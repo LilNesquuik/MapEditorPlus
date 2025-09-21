@@ -1,8 +1,13 @@
 using AdminToys;
+using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms.Attachments;
 using MapGeneration.Distributors;
+using MapGeneration.RoomConnectors;
+using MapGeneration.RoomConnectors.Spawners;
 using Mirror;
+using ProgressiveCulling;
+using RoomDecorations.CableTray;
 using UnityEngine;
 using LightSourceToy = AdminToys.LightSourceToy;
 using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
@@ -58,6 +63,16 @@ public static class PrefabManager
 
 	public static WaypointToy Waypoint { get; private set; }
 	public static SpawnableCullingParent CullingParent { get; private set; }
+	
+	public static SpawnableRoomConnector OpenHallway { get; private set; }
+	public static SpawnableRoomConnector BrokenElectricalBoxOpenConnector { get; private set; }
+	public static SpawnableRoomConnector SimpleBoxesOpenConnector { get; private set; }
+	public static SpawnableRoomConnector PipesShortOpenConnector { get; private set; }
+	public static SpawnableRoomConnector BoxesLadderOpenConnector { get; private set; }
+	public static SpawnableRoomConnector TankSupportedShelfOpenConnector { get; private set; }
+	public static SpawnableRoomConnector AngledFencesOpenConnector { get; private set; }
+	public static SpawnableRoomConnector HugeOrangePipesOpenConnector { get; private set; }
+	public static SpawnableRoomConnector PipesLongOpenConnector { get; private set; }
 
 	public static void RegisterPrefabs()
 	{
@@ -225,7 +240,45 @@ public static class PrefabManager
 				CullingParent = spawnableCullingParent;
 				continue;
 			}
-
+			
+			if (gameObject.TryGetComponent(out SpawnableRoomConnector spawnableClutter))
+			{
+				Logger.Info($"Found {gameObject.name}");
+				
+				switch (gameObject.name)
+				{
+					case "OpenHallway":
+						OpenHallway = spawnableClutter;
+						continue;
+					case "Broken Electrical Box Open Connector":
+						BrokenElectricalBoxOpenConnector = spawnableClutter;
+						continue;
+					case "Simple Boxes Open Connector":
+						SimpleBoxesOpenConnector = spawnableClutter;
+						continue;
+					case "Pipes Short Open Connector":
+						PipesShortOpenConnector = spawnableClutter;
+						continue;
+					case "Boxes Ladder Open Connector":
+						BoxesLadderOpenConnector = spawnableClutter;
+						continue;
+					case "Tank-Supported Shelf Open Connector":
+						TankSupportedShelfOpenConnector = spawnableClutter;
+						continue;
+					case "Angled Fences Open Connector":
+						AngledFencesOpenConnector = spawnableClutter;
+						continue;
+					case "Huge Orange Pipes Open Connector":
+						HugeOrangePipesOpenConnector = spawnableClutter;
+						continue;
+					case "Pipes Long Open Connector":
+						PipesLongOpenConnector = spawnableClutter;
+						continue;
+					default:
+						Logger.Warn($"Unknown clutter connector {gameObject.name}");
+						continue;
+				}
+			}
 		}
 	}
 }
