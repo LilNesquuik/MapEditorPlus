@@ -12,6 +12,7 @@ using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
 using RelativePositioning;
 using UnityEngine;
+using UnityEngine.Animations;
 using CapybaraToy = AdminToys.CapybaraToy;
 using LightSourceToy = AdminToys.LightSourceToy;
 using Object = UnityEngine.Object;
@@ -78,17 +79,14 @@ public class SchematicBlockData
 		transform.localScale = BlockType switch
 		{
 			BlockType.Empty when Scale == Vector3.zero => Vector3.one,
-			BlockType.Waypoint => Scale * SerializableWaypoint.ScaleMultiplier,
 			_ => Scale,
 		};
 
 		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
-		{
 			if (Properties.TryGetValue("Static", out object isStatic) && Convert.ToBoolean(isStatic))
 				Timing.CallDelayed(0.5f, () => adminToyBase.NetworkIsStatic = true);
 			else
 				adminToyBase.NetworkMovementSmoothing = 60;
-		}
 
 		return gameObject;
 	}
@@ -198,7 +196,8 @@ public class SchematicBlockData
 	private GameObject CreateWaypoint()
 	{
 		WaypointToy waypoint = Object.Instantiate(PrefabManager.Waypoint);
-		waypoint.NetworkPriority = byte.MaxValue;
+		waypoint.NetworkBoundsSize = Properties["Bounds"].ToVector3();
+		waypoint.NetworkPriority = Convert.ToByte(Properties["Priority"]);
 
 		return waypoint.gameObject;
 	}

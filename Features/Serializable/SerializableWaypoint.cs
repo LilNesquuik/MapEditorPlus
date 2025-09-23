@@ -13,7 +13,8 @@ public class SerializableWaypoint : SerializableObject, IIndicatorDefinition
 {
 	public const float ScaleMultiplier = 1 / 256f;
 	
-	public Vector3 Bounds;
+	public Vector3 Bounds { get; set; } = Vector3.one;
+	public float Priority { get; set; } = 0;
 
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
@@ -23,7 +24,10 @@ public class SerializableWaypoint : SerializableObject, IIndicatorDefinition
 		_prevIndex = Index;
 
 		waypoint.transform.SetPositionAndRotation(position, rotation);
-		waypoint.transform.localScale = Scale * ScaleMultiplier;
+		waypoint.transform.localScale = Scale;
+		
+		waypoint.NetworkBoundsSize = Bounds;
+		waypoint.NetworkPriority = Priority;
 		waypoint.NetworkMovementSmoothing = 60;
 		waypoint.NetworkVisualizeBounds = true;
 
