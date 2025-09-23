@@ -138,6 +138,7 @@ public class SchematicObject : MonoBehaviour
 		CreateRecursiveFromID(data.RootObjectId, data.Blocks, transform);
 
 		AddRigidbodies();
+		AddWheelColliders();
 		AddAnimators();
 
 		Schematic.OnSchematicSpawned(new(this, Name));
@@ -241,6 +242,36 @@ public class SchematicObject : MonoBehaviour
 		}
 
 		return hasRigidbodies;
+	}
+
+	private bool AddWheelColliders()
+	{
+		bool hasWheelColliders = false;
+		string wheelColliderPath = Path.Combine(DirectoryPath, $"{Name}-WheelColliders.json");
+		if (!File.Exists(wheelColliderPath))
+			return false;
+
+		foreach (KeyValuePair<int, SerializableWheelCollider> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableWheelCollider>>(File.ReadAllText(wheelColliderPath)))
+		{
+			if (!ObjectFromId.TryGetValue(dict.Key, out Transform transform))
+				continue;
+			
+			if (!transform.gameObject.TryGetComponent(out WheelCollider wheelCollider))
+				wheelCollider = transform.gameObject.AddComponent<WheelCollider>();
+			
+			wheelCollider.mass = dict.Value.Mass;
+			wheelCollider.radius = dict.Value.Radius;
+			wheelCollider.wheelDampingRate = dict.Value.DampingRate;
+			wheelCollider.forceAppPointDistance = dict.Value.ForceApplicationPoint;
+			wheelCollider.center = dict.Value.Center;
+			wheelCollider.suspensionSpring = dict.Value.SuspensionSpring;
+			wheelCollider.forwardFriction = dict.Value.ForwardFrictionSpring;
+			wheelCollider.sidewaysFriction = dict.Value.SideFrictionSpring;
+			
+			hasWheelColliders = true;
+		}
+		
+		return hasWheelColliders;
 	}
 
 

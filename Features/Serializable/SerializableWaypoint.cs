@@ -12,6 +12,8 @@ namespace ProjectMER.Features.Serializable;
 public class SerializableWaypoint : SerializableObject, IIndicatorDefinition
 {
 	public const float ScaleMultiplier = 1 / 256f;
+	
+	public Vector3 Bounds;
 
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
