@@ -45,10 +45,17 @@ public enum BlockType
 	/// </summary>
 	Locker = 7,
 
+	/// <summary>
+	/// Represents a Text.
+	/// </summary>
 	Text = 8,
+	
+	/// <summary>
+	/// Represents a Interactable.
+	/// </summary>
 	Interactable = 9,
+	
 	Waypoint = 10,
 	Capybara = 11,
-	BulkheadDoor = 15,
-	Clutter = 16,
+	Trigger = 12,
 }

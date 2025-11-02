@@ -243,8 +243,6 @@ public static class PrefabManager
 			
 			if (gameObject.TryGetComponent(out SpawnableRoomConnector spawnableClutter))
 			{
-				Logger.Info($"Found {gameObject.name}");
-				
 				switch (gameObject.name)
 				{
 					case "OpenHallway":
@@ -275,7 +273,6 @@ public static class PrefabManager
 						PipesLongOpenConnector = spawnableClutter;
 						continue;
 					default:
-						Logger.Warn($"Unknown clutter connector {gameObject.name}");
 						continue;
 				}
 			}

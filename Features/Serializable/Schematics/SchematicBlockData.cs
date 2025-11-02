@@ -6,6 +6,7 @@ using MapGeneration.RoomConnectors;
 using MapGeneration.RoomConnectors.Spawners;
 using MEC;
 using Mirror;
+using ProgressiveCulling;
 using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
@@ -17,6 +18,7 @@ using CapybaraToy = AdminToys.CapybaraToy;
 using LightSourceToy = AdminToys.LightSourceToy;
 using Object = UnityEngine.Object;
 using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
+using SpawnableCullingParent = AdminToys.SpawnableCullingParent;
 using TextToy = AdminToys.TextToy;
 using WaypointToy = AdminToys.WaypointToy;
 
@@ -55,26 +57,16 @@ public class SchematicBlockData
 			BlockType.Interactable => CreateInteractable(),
 			BlockType.Waypoint => CreateWaypoint(),
 			BlockType.Capybara => CreateCapybara(),
-			BlockType.Clutter => CreateClutter(),
+			BlockType.Trigger => CreateTrigger(),
 			_ => CreateEmpty(true)
 		};
 
 		gameObject.name = Name;
 
 		Transform transform = gameObject.transform;
-
-		if (BlockType is not BlockType.Clutter)
-		{
-			transform.SetParent(parentTransform);
-			transform.SetLocalPositionAndRotation(Position, Quaternion.Euler(Rotation));	
-		}
-		else
-		{
-			Vector3 localToWorldPosition = parentTransform.TransformPoint(Position);
-			Quaternion localToWorldRotation = parentTransform.rotation * Quaternion.Euler(Rotation);
-			
-			transform.SetPositionAndRotation(localToWorldPosition, localToWorldRotation);
-		}
+		
+		transform.SetParent(parentTransform);
+		transform.SetLocalPositionAndRotation(Position, Quaternion.Euler(Rotation));	
 
 		transform.localScale = BlockType switch
 		{
@@ -120,6 +112,8 @@ public class SchematicBlockData
 			primitiveFlags = PrimitiveFlags.Visible;
 			if (Scale.x >= 0f)
 				primitiveFlags |= PrimitiveFlags.Collidable;
+			
+			Logger.Warn("One primitive flag is missing in the schematic. Using backward compatibility. Make sure to update your schematics.");
 		}
 
 		primitive.NetworkPrimitiveFlags = primitiveFlags;
@@ -210,24 +204,17 @@ public class SchematicBlockData
 		return capybara.gameObject;
 	}
 
-	private GameObject CreateClutter()
+	private GameObject CreateTrigger()
 	{
-		SpawnableRoomConnectorType connectorType = (SpawnableRoomConnectorType)Convert.ToInt32(Properties["ConnectorType"]);
+		GameObject gameObject = new GameObject();
+		TriggerObject triggerObject = gameObject.AddComponent<TriggerObject>();
 		
-		SpawnableRoomConnector connector = Object.Instantiate(connectorType switch
-		{
-			SpawnableRoomConnectorType.OpenHallway => PrefabManager.OpenHallway,
-			SpawnableRoomConnectorType.ClutterBrokenElectricalBox => PrefabManager.BrokenElectricalBoxOpenConnector,
-			SpawnableRoomConnectorType.ClutterSimpleBoxes => PrefabManager.SimpleBoxesOpenConnector,
-			SpawnableRoomConnectorType.ClutterPipesShort => PrefabManager.PipesShortOpenConnector,
-			SpawnableRoomConnectorType.ClutterBoxesLadder => PrefabManager.BoxesLadderOpenConnector,
-			SpawnableRoomConnectorType.ClutterTankSupportedShelf => PrefabManager.TankSupportedShelfOpenConnector,
-			SpawnableRoomConnectorType.ClutterAngledFences => PrefabManager.AngledFencesOpenConnector,
-			SpawnableRoomConnectorType.ClutterHugeOrangePipes => PrefabManager.HugeOrangePipesOpenConnector,
-			SpawnableRoomConnectorType.ClutterPipesLong => PrefabManager.PipesLongOpenConnector,
-			_ => throw new InvalidOperationException($"No prefab defined for connector type {connectorType}")
-		});
+		triggerObject.triggerType = (TriggerType)Convert.ToByte(Properties["TriggerType"]);
+		triggerObject.effectName = Properties["EffectName"].ToString();
+		triggerObject.intensity = Convert.ToByte(Properties["Intensity"]);
+		triggerObject.duration = Convert.ToSingle(Properties["Duration"]);
+		triggerObject.addDuration = Convert.ToBoolean(Properties["AddDuration"]);
 		
-		return connector.gameObject;
+		return gameObject;
 	}
 }
