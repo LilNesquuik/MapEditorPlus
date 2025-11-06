@@ -9,8 +9,6 @@ namespace ProjectMER.Features.Objects;
 
 public class TriggerObject : MonoBehaviour
 {
-    private const float Interval = 0.1f;
-    
     public TriggerType triggerType = TriggerType.OnEnter;
     public string effectName = nameof(PitDeath);
     public float duration;
@@ -18,66 +16,70 @@ public class TriggerObject : MonoBehaviour
     public bool addDuration;
 
     public event Action<Player> OnTrigger;
-
-    private Bounds _bounds;
-    private HashSet<Player> _affectedPlayers;
-    private float _nextCheck;
+    
+    private BoxCollider _collider;
+    private CachedLayerMask _playerLayer;
     
     private MapEditorObject _mapEditorObject;
-    public SerializableTeleport Base;
+    public SerializableTrigger Base;
 
     private void Awake()
     {
-        _affectedPlayers = [];
-        _bounds = new Bounds(transform.position, transform.lossyScale);
+        _playerLayer = new CachedLayerMask("Player");
+        
+        _collider = gameObject.AddComponent<BoxCollider>();
+        _collider.isTrigger = true;
     }
     
     private void Start()
     {
         _mapEditorObject = GetComponent<MapEditorObject>();
-        Base = (SerializableTeleport)_mapEditorObject.Base;
+        Base = (SerializableTrigger)_mapEditorObject.Base;
     }
-    
-    public void FixedUpdate()
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (Time.time < _nextCheck) 
+        if (other.gameObject.layer != _playerLayer) 
+            return;
+    
+        if (triggerType is not TriggerType.OnEnter) 
+            return;
+    
+        Player? player = Player.Get(other.gameObject);
+        if (player != null)
+            ServerEnableEffect(player);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.layer != _playerLayer) 
             return;
         
-        _nextCheck = Time.time + Interval;
+        if (triggerType is not TriggerType.OnStay) 
+            return;
+    
+        Player? player = Player.Get(other.gameObject);
+        if (player != null)
+            ServerEnableEffect(player);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer != _playerLayer) 
+            return;
         
-        _bounds.center = transform.position;
-        _bounds.size = transform.lossyScale;
-        
-        foreach (Player player in Player.List)
-        {
-            bool flag = _affectedPlayers.Contains(player);
-            if (_bounds.Contains(player.Position))
-            {
-                if (!flag)
-                {
-                    _affectedPlayers.Add(player);
-                    
-                    if (triggerType is TriggerType.OnEnter)
-                        ServerEnableEffect(player);
-                }
-                else
-                    if (triggerType is TriggerType.OnStay)
-                        ServerEnableEffect(player);
-            }
-            else if (flag)
-            {
-                _affectedPlayers.Remove(player);
-                
-                if (triggerType is TriggerType.OnExit)
-                    ServerEnableEffect(player);
-            }
-        }
+        if (triggerType is not TriggerType.OnExit) 
+            return;
+    
+        Player? player = Player.Get(other.gameObject);
+        if (player != null)
+            ServerEnableEffect(player);
     }
 
     private void ServerEnableEffect(Player player)
     {
         OnTrigger(player);
-        
+
         if (player.TryGetEffect(effectName, out StatusEffectBase? statusEffectBase))
             player.EnableEffect(statusEffectBase, intensity, duration, addDuration);
     }

@@ -21,10 +21,8 @@ public class SerializableClutter : SerializableObject
 
         connectorSpawnpoint.transform.SetPositionAndRotation(position, rotation);
         connectorSpawnpoint.transform.localScale = Scale;
-
-        if (instance != null)
-            NetworkServer.UnSpawn(connectorSpawnpoint.gameObject);
-
+        
+        NetworkServer.UnSpawn(connectorSpawnpoint.gameObject);
         NetworkServer.Spawn(connectorSpawnpoint.gameObject);
 
         return connectorSpawnpoint.gameObject;
