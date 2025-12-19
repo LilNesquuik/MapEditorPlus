@@ -1,8 +1,6 @@
 ﻿using CustomPlayerEffects;
 using LabApi.Features.Wrappers;
-using Mirror;
 using ProjectMER.Features.Enums;
-using ProjectMER.Features.Serializable;
 using UnityEngine;
 
 namespace ProjectMER.Features.Objects;
@@ -18,28 +16,19 @@ public class TriggerObject : MonoBehaviour
     public event Action<Player> OnTrigger;
     
     private BoxCollider _collider;
-    private CachedLayerMask _playerLayer;
-    
-    private MapEditorObject _mapEditorObject;
-    public SerializableTrigger Base;
+    private CachedLayerMask _detectionMask;
 
     private void Awake()
     {
-        _playerLayer = new CachedLayerMask("Player");
+        _detectionMask = new CachedLayerMask("Player");
         
         _collider = gameObject.AddComponent<BoxCollider>();
         _collider.isTrigger = true;
     }
-    
-    private void Start()
-    {
-        _mapEditorObject = GetComponent<MapEditorObject>();
-        Base = (SerializableTrigger)_mapEditorObject.Base;
-    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer != _playerLayer) 
+        if (other.gameObject.layer != _detectionMask) 
             return;
     
         if (triggerType is not TriggerType.OnEnter) 
@@ -52,7 +41,7 @@ public class TriggerObject : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.layer != _playerLayer) 
+        if (other.gameObject.layer != _detectionMask) 
             return;
         
         if (triggerType is not TriggerType.OnStay) 
@@ -65,7 +54,7 @@ public class TriggerObject : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.layer != _playerLayer) 
+        if (other.gameObject.layer != _detectionMask) 
             return;
         
         if (triggerType is not TriggerType.OnExit) 
