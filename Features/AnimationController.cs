@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ProjectMER.Features;
 
-// <summary>
+/// <summary>
 /// A class which handles everything related to Unity's animation system applied to <see cref="SchematicObject"/>s.
 /// </summary>
 public class AnimationController
