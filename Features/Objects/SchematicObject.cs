@@ -16,6 +16,11 @@ public class SchematicObject : MonoBehaviour
 	/// Gets the schematic name.
 	/// </summary>
 	public string Name { get; private set; }
+	
+	/// <summary>
+	/// Gets the author of the schematic.
+	/// </summary>
+	public string? Author { get; private set; }
 
 	/// <summary>
 	/// Gets a schematic directory path.
@@ -28,10 +33,7 @@ public class SchematicObject : MonoBehaviour
 	public Vector3 Position
 	{
 		get => transform.position;
-		set
-		{
-			transform.position = value;
-		}
+		set => transform.position = value;
 	}
 
 	/// <summary>
@@ -40,10 +42,7 @@ public class SchematicObject : MonoBehaviour
 	public Quaternion Rotation
 	{
 		get => transform.rotation;
-		set
-		{
-			transform.rotation = value;
-		}
+		set => transform.rotation = value;
 	}
 
 	/// <summary>
@@ -61,10 +60,7 @@ public class SchematicObject : MonoBehaviour
 	public Vector3 Scale
 	{
 		get => transform.localScale;
-		set
-		{
-			transform.localScale = value;
-		}
+		set => transform.localScale = value;
 	}
 
 	public IReadOnlyList<GameObject> AttachedBlocks
@@ -75,12 +71,12 @@ public class SchematicObject : MonoBehaviour
 				return _attachedBlocks;
 
 			_attachedBlocks.Clear();
-			foreach (Transform transform in GetComponentsInChildren<Transform>())
+			foreach (Transform child in GetComponentsInChildren<Transform>())
 			{
-				if (transform == this.transform)
+				if (child == this.transform)
 					continue;
 
-				_attachedBlocks.Add(transform.gameObject);
+				_attachedBlocks.Add(child.gameObject);
 			}
 
 			return _attachedBlocks;
@@ -129,6 +125,7 @@ public class SchematicObject : MonoBehaviour
 	{
 		Name = Path.GetFileNameWithoutExtension(data.Path);
 		DirectoryPath = data.Path;
+		Author = data.Author;
 
 		ObjectFromId = new Dictionary<int, Transform>(data.Blocks.Count + 1)
 		{
@@ -138,6 +135,7 @@ public class SchematicObject : MonoBehaviour
 		CreateRecursiveFromID(data.RootObjectId, data.Blocks, transform);
 
 		AddRigidbodies();
+		AddWheelColliders();
 		AddAnimators();
 
 		Schematic.OnSchematicSpawned(new(this, Name));
@@ -241,6 +239,36 @@ public class SchematicObject : MonoBehaviour
 		}
 
 		return hasRigidbodies;
+	}
+
+	private bool AddWheelColliders()
+	{
+		bool hasWheelColliders = false;
+		string wheelColliderPath = Path.Combine(DirectoryPath, $"{Name}-WheelColliders.json");
+		if (!File.Exists(wheelColliderPath))
+			return false;
+
+		foreach (KeyValuePair<int, SerializableWheelCollider> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableWheelCollider>>(File.ReadAllText(wheelColliderPath)))
+		{
+			if (!ObjectFromId.TryGetValue(dict.Key, out Transform transform))
+				continue;
+			
+			if (!transform.gameObject.TryGetComponent(out WheelCollider wheelCollider))
+				wheelCollider = transform.gameObject.AddComponent<WheelCollider>();
+			
+			wheelCollider.mass = dict.Value.Mass;
+			wheelCollider.radius = dict.Value.Radius;
+			wheelCollider.wheelDampingRate = dict.Value.DampingRate;
+			wheelCollider.forceAppPointDistance = dict.Value.ForceApplicationPoint;
+			wheelCollider.center = dict.Value.Center;
+			wheelCollider.suspensionSpring = dict.Value.SuspensionSpring;
+			wheelCollider.forwardFriction = dict.Value.ForwardFrictionSpring;
+			wheelCollider.sidewaysFriction = dict.Value.SideFrictionSpring;
+			
+			hasWheelColliders = true;
+		}
+		
+		return hasWheelColliders;
 	}
 
 

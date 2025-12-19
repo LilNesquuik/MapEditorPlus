@@ -51,6 +51,10 @@ public class MapSchematic
 	public Dictionary<string, SerializableLocker> Lockers { get; set; } = [];
 
 	public Dictionary<string, SerializableWaypoint> Waypoints { get; set; } = [];
+	
+	public Dictionary<string, SerializableClutter> Clutters { get; set; } = [];
+	
+	public Dictionary<string, SerializableTrigger> Triggers { get; set; } = [];
 
 	public List<MapEditorObject> SpawnedObjects = [];
 
@@ -71,6 +75,8 @@ public class MapSchematic
 		Teleports.AddRange(other.Teleports);
 		Lockers.AddRange(other.Lockers);
 		Waypoints.AddRange(other.Waypoints);
+		Clutters.AddRange(other.Clutters);
+		Triggers.AddRange(other.Triggers);
 
 		return this;
 	}
@@ -111,6 +117,8 @@ public class MapSchematic
 			SpawnObject(kVP.Key, kVP.Value);
 		});
 		Waypoints.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
+		Clutters.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
+		Triggers.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
 	}
 
 	public void SpawnObject<T>(string id, T serializableObject) where T : SerializableObject
@@ -193,6 +201,12 @@ public class MapSchematic
 
 		if (Waypoints.TryAdd(id, serializableObject))
 			return true;
+		
+		if (Clutters.TryAdd(id, serializableObject))
+			return true;
+		
+		if (Triggers.TryAdd(id, serializableObject))
+			return true;
 
 		IsDirty = dirtyPrevValue;
 		return false;
@@ -246,6 +260,12 @@ public class MapSchematic
 			return true;
 
 		if (Waypoints.Remove(id))
+			return true;
+		
+		if (Clutters.Remove(id))
+			return true;
+		
+		if (Triggers.Remove(id))
 			return true;
 
 		IsDirty = dirtyPrevValue;

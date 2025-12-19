@@ -1,3 +1,5 @@
+using System.Configuration;
+using HarmonyLib;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
@@ -34,6 +36,8 @@ public class ToolGunItem
 		{ ToolGunObjectType.Teleport, typeof(SerializableTeleport) },
 		{ ToolGunObjectType.Interactable, typeof(SerializableInteractable) },
 		{ ToolGunObjectType.Waypoint, typeof(SerializableWaypoint) },
+		{ ToolGunObjectType.Clutter, typeof(SerializableClutter) },
+		{ ToolGunObjectType.Trigger, typeof(SerializableTrigger) },
 	};
 
 	private ToolGunObjectType _selectedObjectToSpawn;
@@ -63,9 +67,9 @@ public class ToolGunItem
 		if (item == null)
 			return false;
 
-		Firearm toolgun = (Firearm)item.Base;
-		toolgun.ApplyAttachmentsCode(454, false);
-		if (!toolgun.TryGetModules(out MagazineModule magazineModule, out AutomaticActionModule automaticActionModule))
+		Firearm toolGun = (Firearm)item.Base;
+		toolGun.ApplyAttachmentsCode(454, false);
+		if (!toolGun.TryGetModules(out MagazineModule magazineModule, out AutomaticActionModule automaticActionModule))
 		{
 			Logger.Error("Modules not found. This error should never occur.");
 			return false;
@@ -79,16 +83,19 @@ public class ToolGunItem
 
 		player.AddAmmo(ItemType.Ammo9x19, 1);
 
-		ItemDictionary.Add(toolgun.ItemSerial, new ToolGunItem(toolgun));
+		ItemDictionary.Add(toolGun.ItemSerial, new ToolGunItem(toolGun));
 
-		ServerSpecificSettingsSync.SendOnJoinFilter = (_) => false; // Prevent all users from receiving the tools after joining the server.
-		ServerSpecificSettingsSync.DefinedSettings =
+		ServerSpecificSettingsSync.SendOnJoinFilter = _ => false; // Prevent all users from receiving the tools after joining the server.
+
+		ServerSpecificSettingBase[] extraSettings =
 		[
-			new SSGroupHeader("MapEditorReborn"),
-			new SSDropdownSetting(0, "Schematic Name", MapUtils.GetAvailableSchematicNames(), isServerOnly: true)
+			new SSGroupHeader("MapEditorReborn"), 
+			new SSDropdownSetting(int.MaxValue, "Schematic Name", MapUtils.GetAvailableSchematicNames(), isServerOnly: true)
 		];
 
-		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(x => x.IsToolGun(out ToolGunItem _)));
+		ServerSpecificSettingsSync.DefinedSettings = ServerSpecificSettingsSync.DefinedSettings.Concat(extraSettings).ToArray();
+
+		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(itemBase => itemBase.IsToolGun(out ToolGunItem _)));
 
 		return true;
 	}
@@ -97,12 +104,11 @@ public class ToolGunItem
 	{
 		foreach (ItemBase itemBase in player.Inventory.UserInventory.Items.Values)
 		{
-			if (ItemDictionary.ContainsKey(itemBase.ItemSerial))
-			{
-				ItemDictionary.Remove(itemBase.ItemSerial);
-				player.RemoveItem(itemBase);
-				return true;
-			}
+			if (!ItemDictionary.Remove(itemBase.ItemSerial)) 
+				continue;
+			
+			player.RemoveItem(itemBase);
+			return true;
 		}
 
 		return false;
@@ -116,7 +122,7 @@ public class ToolGunItem
 	{
 		if (CreateMode)
 		{
-			ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, 0, out SSDropdownSetting dropdownSetting);
+			ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, int.MaxValue, out SSDropdownSetting dropdownSetting);
 			dropdownSetting.TryGetSyncSelectionText(out string schematicName);
 
 			ToolGunHandler.CreateObject(player, SelectedObjectToSpawn, schematicName);

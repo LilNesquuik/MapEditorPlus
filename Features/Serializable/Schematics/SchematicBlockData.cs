@@ -1,12 +1,15 @@
 using AdminToys;
 using InventorySystem.Items.Firearms.Attachments;
 using LabApi.Features.Wrappers;
+using MEC;
 using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
 using UnityEngine;
+using CapybaraToy = AdminToys.CapybaraToy;
 using LightSourceToy = AdminToys.LightSourceToy;
+using Object = UnityEngine.Object;
 using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
 using TextToy = AdminToys.TextToy;
 using WaypointToy = AdminToys.WaypointToy;
@@ -45,33 +48,29 @@ public class SchematicBlockData
 			BlockType.Text => CreateText(),
 			BlockType.Interactable => CreateInteractable(),
 			BlockType.Waypoint => CreateWaypoint(),
+			BlockType.Capybara => CreateCapybara(),
+			BlockType.Trigger => CreateTrigger(),
 			_ => CreateEmpty(true)
 		};
 
 		gameObject.name = Name;
 
 		Transform transform = gameObject.transform;
+		
 		transform.SetParent(parentTransform);
-		transform.SetLocalPositionAndRotation(Position, Quaternion.Euler(Rotation));
+		transform.SetLocalPositionAndRotation(Position, Quaternion.Euler(Rotation));	
 
 		transform.localScale = BlockType switch
 		{
 			BlockType.Empty when Scale == Vector3.zero => Vector3.one,
-			BlockType.Waypoint => Scale * SerializableWaypoint.ScaleMultiplier,
 			_ => Scale,
 		};
 
 		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
-		{
-			if (Properties != null && Properties.TryGetValue("Static", out object isStatic) && Convert.ToBoolean(isStatic))
-			{
-				adminToyBase.NetworkIsStatic = true;
-			}
+			if (Properties.TryGetValue("Static", out object isStatic) && Convert.ToBoolean(isStatic))
+				Timing.CallDelayed(0.5f, () => adminToyBase.NetworkIsStatic = true);
 			else
-			{
 				adminToyBase.NetworkMovementSmoothing = 60;
-			}
-		}
 
 		return gameObject;
 	}
@@ -81,7 +80,7 @@ public class SchematicBlockData
 		if (fallback)
 			Logger.Warn($"{BlockType} is not yet implemented. Object will be an empty GameObject instead.");
 
-		PrimitiveObjectToy primitive = GameObject.Instantiate(PrefabManager.PrimitiveObject);
+		PrimitiveObjectToy primitive = Object.Instantiate(PrefabManager.PrimitiveObject);
 		primitive.NetworkPrimitiveFlags = PrimitiveFlags.None;
 
 		return primitive.gameObject;
@@ -89,7 +88,7 @@ public class SchematicBlockData
 
 	private GameObject CreatePrimitive()
 	{
-		PrimitiveObjectToy primitive = GameObject.Instantiate(PrefabManager.PrimitiveObject);
+		PrimitiveObjectToy primitive = Object.Instantiate(PrefabManager.PrimitiveObject);
 
 		primitive.NetworkPrimitiveType = (PrimitiveType)Convert.ToInt32(Properties["PrimitiveType"]);
 		primitive.NetworkMaterialColor = Properties["Color"].ToString().GetColorFromString();
@@ -105,6 +104,8 @@ public class SchematicBlockData
 			primitiveFlags = PrimitiveFlags.Visible;
 			if (Scale.x >= 0f)
 				primitiveFlags |= PrimitiveFlags.Collidable;
+			
+			Logger.Warn("One primitive flag is missing in the schematic. Using backward compatibility. Make sure to update your schematics.");
 		}
 
 		primitive.NetworkPrimitiveFlags = primitiveFlags;
@@ -114,7 +115,7 @@ public class SchematicBlockData
 
 	private GameObject CreateLight()
 	{
-		LightSourceToy light = GameObject.Instantiate(PrefabManager.LightSource);
+		LightSourceToy light = Object.Instantiate(PrefabManager.LightSource);
 
 		light.NetworkLightType = Properties.TryGetValue("LightType", out object lightType) ? (LightType)Convert.ToInt32(lightType) : LightType.Point;
 		light.NetworkLightColor = Properties["Color"].ToString().GetColorFromString();
@@ -152,7 +153,7 @@ public class SchematicBlockData
 
 	private GameObject CreateWorkstation()
 	{
-		WorkstationController workstation = GameObject.Instantiate(PrefabManager.Workstation);
+		WorkstationController workstation = Object.Instantiate(PrefabManager.Workstation);
 		workstation.NetworkStatus = (byte)(Properties.TryGetValue("IsInteractable", out object isInteractable) && Convert.ToBoolean(isInteractable) ? 0 : 4);
 
 		return workstation.gameObject;
@@ -160,7 +161,7 @@ public class SchematicBlockData
 
 	private GameObject CreateText()
 	{
-		TextToy text = GameObject.Instantiate(PrefabManager.Text);
+		TextToy text = Object.Instantiate(PrefabManager.Text);
 
 		text.TextFormat = Convert.ToString(Properties["Text"]);
 		text.DisplaySize = Properties["DisplaySize"].ToVector2() * 20f;
@@ -170,7 +171,7 @@ public class SchematicBlockData
 
 	private GameObject CreateInteractable()
 	{
-		InvisibleInteractableToy interactable = GameObject.Instantiate(PrefabManager.Interactable);
+		InvisibleInteractableToy interactable = Object.Instantiate(PrefabManager.Interactable);
 		interactable.NetworkShape = (InvisibleInteractableToy.ColliderShape)Convert.ToInt32(Properties["Shape"]);
 		interactable.NetworkInteractionDuration = Convert.ToSingle(Properties["InteractionDuration"]);
 		interactable.NetworkIsLocked = Properties.TryGetValue("IsLocked", out object isLocked) && Convert.ToBoolean(isLocked);
@@ -180,9 +181,32 @@ public class SchematicBlockData
 
 	private GameObject CreateWaypoint()
 	{
-		WaypointToy waypoint = GameObject.Instantiate(PrefabManager.Waypoint);
-		waypoint.NetworkPriority = byte.MaxValue;
+		WaypointToy waypoint = Object.Instantiate(PrefabManager.Waypoint);
+		waypoint.NetworkBoundsSize = Properties["Bounds"].ToVector3();
+		waypoint.NetworkPriority = Convert.ToByte(Properties["Priority"]);
 
 		return waypoint.gameObject;
+	}
+
+	private GameObject CreateCapybara()
+	{
+		CapybaraToy capybara = Object.Instantiate(PrefabManager.Capybara);
+		capybara.NetworkCollisionsEnabled = Convert.ToBoolean(Properties["Collider"]);
+		
+		return capybara.gameObject;
+	}
+
+	private GameObject CreateTrigger()
+	{
+		GameObject gameObject = new GameObject();
+		TriggerObject triggerObject = gameObject.AddComponent<TriggerObject>();
+		
+		triggerObject.triggerType = (TriggerType)Convert.ToByte(Properties["TriggerType"]);
+		triggerObject.effectName = Properties["EffectName"].ToString();
+		triggerObject.intensity = Convert.ToByte(Properties["Intensity"]);
+		triggerObject.duration = Convert.ToSingle(Properties["Duration"]);
+		triggerObject.addDuration = Convert.ToBoolean(Properties["AddDuration"]);
+		
+		return gameObject;
 	}
 }

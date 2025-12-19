@@ -7,6 +7,7 @@ using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
 using UnityEngine;
 using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
+using SpawnableCullingParent = AdminToys.SpawnableCullingParent;
 
 namespace ProjectMER.Features.Serializable.Schematics;
 

@@ -2,6 +2,7 @@ global using Logger = LabApi.Features.Console.Logger;
 
 using HarmonyLib;
 using LabApi.Events.CustomHandlers;
+using LabApi.Features;
 using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
 using MEC;
@@ -130,8 +131,8 @@ public class ProjectMER : Plugin<Config>
 	public override string Description => "MER LabAPI";
 
 	public override string Author => "Michal78900";
+  
+	public override Version Version => new(2025, 12, 0, 0);
 
-	public override Version Version => new Version(2025, 11, 2, 1);
-
-	public override Version RequiredApiVersion => new Version(1, 0, 0, 0);
+	public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
 }
