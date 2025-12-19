@@ -1,6 +1,13 @@
-﻿using CommandSystem;
+﻿using System.Text;
+using AdminToys;
+using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
+using NorthwoodLib.Pools;
+using ProjectMER.Features.Objects;
+using UnityEngine;
+using UnityEngine.Pool;
+using Object = UnityEngine.Object;
 
 namespace ProjectMER.Commands.Utility;
 
@@ -23,11 +30,29 @@ public class Statistics : ICommand
             return false;
         }
 
-        int adminToyCount = AdminToy.List.Count;
-        int staticToyCount = AdminToy.List.Count(x => x.IsStatic);
-        int diff = adminToyCount - staticToyCount;
+        StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();
+        stringBuilder.AppendLine("Schematics:");
+        
+        foreach (SchematicObject schematic in Object.FindObjectsOfType<SchematicObject>())
+        {
+            Dictionary<Type, int> dictionaryPool = DictionaryPool<Type, int>.Get();
+            
+            stringBuilder.AppendLine($"<b>{schematic.Name}</b>");
+            foreach (AdminToyBase adminToy in schematic.AdminToyBases)
+            {
+                dictionaryPool.TryGetValue(adminToy.GetType(), out int count);
+                dictionaryPool[adminToy.GetType()] = count + 1;
+            }
 
-        response = $"\nAdmin toys: {adminToyCount}\nStatic toys: {staticToyCount}\nDiff: {diff}";
+            foreach (KeyValuePair<Type, int> entry in dictionaryPool)
+                stringBuilder.AppendLine($"└─<b>{entry.Key.Name}:</b> <u>{entry.Value}</u>");
+            
+            stringBuilder.AppendLine();
+            
+            DictionaryPool<Type, int>.Release(dictionaryPool);
+        }
+
+        response = StringBuilderPool.Shared.ToStringReturn(stringBuilder);
         return true;
     }
 }
