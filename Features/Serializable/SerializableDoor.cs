@@ -3,11 +3,12 @@ using LabApi.Features.Wrappers;
 using Mirror;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Interfaces;
 using UnityEngine;
 
 namespace ProjectMER.Features.Serializable;
 
-public class SerializableDoor : SerializableObject
+public class SerializableDoor : SerializableObject, ILockedPosition
 {
 	public DoorType DoorType { get; set; } = DoorType.Lcz;
 	public bool IsOpen { get; set; } = false;

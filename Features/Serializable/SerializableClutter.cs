@@ -4,11 +4,12 @@ using MapGeneration.RoomConnectors.Spawners;
 using Mirror;
 using ProjectMER.Commands.Modifying.Scale;
 using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Interfaces;
 using UnityEngine;
 
 namespace ProjectMER.Features.Serializable;
 
-public class SerializableClutter : SerializableObject
+public class SerializableClutter : SerializableObject, ILockedPosition
 {
     public SpawnableRoomConnectorType ConnectorType { get; set; } = SpawnableRoomConnectorType.ClutterSimpleBoxes;
     

@@ -3,6 +3,7 @@ using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using MEC;
 using Mirror;
+using ProjectMER.Features.Interfaces;
 using ProjectMER.Features.Objects;
 using ProjectMER.Features.Serializable;
 using ProjectMER.Features.ToolGun;
@@ -65,7 +66,7 @@ public class Grab : ICommand
 	{
 		Vector3 position = player.Camera.position;
 		float multiplier = Vector3.Distance(position, mapEditorObject.transform.position);
-		Vector3 prevPos = position + (player.Camera.forward * multiplier);
+		Vector3 prevPos = position + player.Camera.forward * multiplier;
 
 		while (true)
 		{
@@ -81,7 +82,7 @@ public class Grab : ICommand
 
 			prevPos = newPos;
 			mapEditorObject.transform.position = prevPos;
-			if (mapEditorObject.Base is SerializableDoor _)
+			if (mapEditorObject.Base is ILockedPosition)
 			{
 				NetworkServer.UnSpawn(mapEditorObject.gameObject);
 				NetworkServer.Spawn(mapEditorObject.gameObject);
