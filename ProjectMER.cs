@@ -38,7 +38,7 @@ public class ProjectMER : Plugin<Config>
 
 	public ToolGunEventsHandler ToolGunEventsHandler { get; } = new();
 
-	public ActionOnEventHandlers AcionOnEventHandlers { get; } = new();
+	public ActionOnEventHandlers ActionOnEventHandlers { get; } = new();
 
 	public PickupEventsHandler PickupEventsHandler { get; } = new();
 
@@ -72,7 +72,7 @@ public class ProjectMER : Plugin<Config>
 
 		CustomHandlersManager.RegisterEventsHandler(GenericEventsHandler);
 		CustomHandlersManager.RegisterEventsHandler(ToolGunEventsHandler);
-		CustomHandlersManager.RegisterEventsHandler(AcionOnEventHandlers);
+		CustomHandlersManager.RegisterEventsHandler(ActionOnEventHandlers);
 		CustomHandlersManager.RegisterEventsHandler(PickupEventsHandler);
 
 		_harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
@@ -119,7 +119,7 @@ public class ProjectMER : Plugin<Config>
 
 		CustomHandlersManager.UnregisterEventsHandler(GenericEventsHandler);
 		CustomHandlersManager.UnregisterEventsHandler(ToolGunEventsHandler);
-		CustomHandlersManager.UnregisterEventsHandler(AcionOnEventHandlers);
+		CustomHandlersManager.UnregisterEventsHandler(ActionOnEventHandlers);
 		CustomHandlersManager.UnregisterEventsHandler(PickupEventsHandler);
 
 		_harmony.UnpatchAll();
