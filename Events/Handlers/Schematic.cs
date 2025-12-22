@@ -12,6 +12,8 @@ public static class Schematic
 	public static event LabEventHandler<ButtonInteractedEventArgs> ButtonInteracted;
 
 	public static event LabEventHandler<SchematicDestroyedEventArgs> SchematicDestroyed;
+	
+	public static event LabEventHandler<PlayerTriggerEventArgs> PlayerTrigger;
 
 	internal static void OnSchematicSpawning(SchematicSpawningEventArgs ev) => SchematicSpawning.InvokeEvent(ev);
 
@@ -20,4 +22,6 @@ public static class Schematic
 	internal static void OnButtonInteracted(ButtonInteractedEventArgs ev) => ButtonInteracted.InvokeEvent(ev);
 
 	internal static void OnSchematicDestroyed(SchematicDestroyedEventArgs ev) => SchematicDestroyed.InvokeEvent(ev);
+
+	internal static void OnPlayerTrigger(PlayerTriggerEventArgs ev) => PlayerTrigger.InvokeEvent(ev);
 }

@@ -32,6 +32,12 @@ public class SerializableTrigger : SerializableObject, IIndicatorDefinition
 		TriggerObject triggerObject = instance == null ? 
 			gameObject.AddComponent<TriggerObject>() : instance.GetComponent<TriggerObject>();
 		
+		if (!gameObject.TryGetComponent(out BoxCollider boxCollider))
+			boxCollider = gameObject.AddComponent<BoxCollider>();
+		
+		boxCollider.isTrigger = true;
+		boxCollider.size = Scale;
+		
 		triggerObject.triggerType = TriggerType;
 		triggerObject.effectName = EffectName;
 		triggerObject.intensity = Intensity;
