@@ -1,6 +1,6 @@
 # MapEditorPlus - Object & Schematic Creator
 
-**MapEditorPlus** is a fork of **[MapEditorReborn](https://github.com/Michal78900/MapEditorReborn)**, originally created to support a specific project.
+**MapEditorPlus** is a fork of **[ProjectMER OR MapEditorReborn](https://github.com/Michal78900/ProjectMER)**, originally created to support a specific project.
 This fork focuses on implementing additional features, internal improvements, and project-specific adjustments that are not part of the upstream scope.
 
 > [!WARNING]
