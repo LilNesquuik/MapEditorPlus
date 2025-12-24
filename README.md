@@ -11,11 +11,12 @@ This fork focuses on implementing additional features, internal improvements, an
 ## 🗃️ Features
 *Here is list of features that are not in the original plugin*
 
-- 📦 Spawnable **Clutter boxes**
+### objects
+- 📦 **Clutter boxes**
   - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
-- 🦫 Spawnable **Capybara**
+- 🦫 **CapybaraToy**
   - Allows spawning a Capybara and you can enable or disable its collision
-- 🧿 Spawnable **Trigger Zone**
+- 🧿 **Trigger Zone**
   - In your schematic, or directly in the game, create an `TriggerObject` 
   - You can define the effect that will be applied when a player enters the trigger zone or let it empty to do nothing
   - Or you can also subscribe to the `PlayerTriggerEventArgs` and make your own logic
@@ -23,6 +24,15 @@ This fork focuses on implementing additional features, internal improvements, an
   - In your schematic, create an empty object and add the `LinkComponent` to it
   - If you move an object close to an object with `LinkComponent`, it will be linked to it
   - It will improve the map making experience
+
+### Internal improvements
+- 🚗 **WheelColliders** Support
+  - Configure your wheel colliders and it will be compiled in the schematic
+  - Useful if you wanna make a vehicle but to lazy to hardcode the wheel colliders values
+- 📝 **TMP FontStyles** Support
+  - Too lazy of writing unity rich text tag ? Use the native unity font styles buttons
+  - At the compile time, it will convert the unity font styles to the unity rich text tag
+  - But... in the other way, if you decompile an `TextToy`, it will use the unity rich text tag
 
 ---
 
