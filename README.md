@@ -14,16 +14,13 @@ This fork focuses on implementing additional features, internal improvements, an
 ### Objects
 - 📦 **Clutter boxes**
   - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
-
 - 🦫 **CapybaraToy**
   - Allows spawning a Capybara and you can enable or disable its collision
-
 - 🧿 **Trigger Zone**
   - In your schematic, or directly in the game, create an `Trigger` 
   - You can define the effect that will be applied when a player enters the trigger zone or let it empty to do nothing
   - You can also configure trigger type, choose between `Enter`, `Stay` or `Exit`  
   - An event also exists, subscribe to `PlayerTriggerEventArgs` and make your own logic
-
 - ⛓️‍💥 **Link Object**
   - In your schematic, create an empty object and add the `LinkComponent` to it
   - If you move an object close to an object with `LinkComponent`, it will be linked to it
@@ -33,7 +30,6 @@ This fork focuses on implementing additional features, internal improvements, an
 - 🚗 **WheelColliders** Support
   - Configure your wheel colliders and it will be compiled in the schematic
   - Useful if you wanna make a vehicle but to lazy to hardcode the wheel colliders values
-
 - 📝 **TMP FontStyles** Support
   - Too lazy of writing unity rich text tag ? Use the native unity font styles buttons
   - At the compile time, it will convert the unity font styles to the unity rich text tag
