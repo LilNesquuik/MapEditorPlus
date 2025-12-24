@@ -40,6 +40,7 @@ public class SchematicBlockData
 	{
 		GameObject gameObject = BlockType switch
 		{
+			BlockType.Link => CreateLink(),
 			BlockType.Empty => CreateEmpty(),
 			BlockType.Primitive => CreatePrimitive(),
 			BlockType.Light => CreateLight(),
@@ -72,6 +73,14 @@ public class SchematicBlockData
 			else
 				adminToyBase.NetworkMovementSmoothing = 60;
 
+		return gameObject;
+	}
+	
+	private GameObject CreateLink()
+	{
+		GameObject gameObject = new("Link");
+		gameObject.AddComponent<LinkObject>();
+		
 		return gameObject;
 	}
 
