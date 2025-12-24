@@ -76,6 +76,9 @@ public class Grab : ICommand
 				break;
 
 			Vector3 newPos = mapEditorObject.transform.position = player.Camera.position + (player.Camera.forward * multiplier);
+			
+			if (LinkObject.TryGetClosestLinkObject(newPos, out LinkObject linkObject))
+				newPos = linkObject.transform.position;
 
 			if (prevPos == newPos)
 				continue;

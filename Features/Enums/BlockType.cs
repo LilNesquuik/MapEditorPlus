@@ -6,6 +6,11 @@ namespace ProjectMER.Features.Enums;
 public enum BlockType
 {
 	/// <summary>
+	/// Represents an transform link.
+	/// </summary>
+    Link = -1,
+    
+	/// <summary>
 	/// Represents an empty transform.
 	/// </summary>
 	Empty = 0,
