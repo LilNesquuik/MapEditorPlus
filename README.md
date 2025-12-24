@@ -14,15 +14,28 @@ This fork focuses on implementing additional features, internal improvements, an
 - 📦 Spawnable **Clutter boxes**
   - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
 - 🦫 Spawnable **Capybara**
-  - Allows spawning a Capybara
+  - Allows spawning a Capybara and you can enable or disable its collision
 - 🧿 Spawnable **Trigger Zone**
-  - Allows creating a **detection cube** that can apply a **desired effect**
+  - In your schematic, or directly in the game, create an `TriggerObject` 
+  - You can define the effect that will be applied when a player enters the trigger zone or let it empty to do nothing
+  - Or you can also subscribe to the `PlayerTriggerEventArgs` and make your own logic
+- ⛓️‍💥 **Link Object**
+  - In your schematic, create an empty object and add the `LinkComponent` to it
+  - If you move an object close to an object with `LinkComponent`, it will be linked to it
+  - It will improve the map making experience
 
 ---
 
 ## 📬 Installation
 - Put your [`MapEditorReborn.dll`](https://github.com/LilNesquuik/MapEditorPlus/releases/latest) file in `LabAPI/plugins` path.
 Once your plugin will load, it will create directory `LapAPI/configs/ProjectMER`; This directory will contain two sub-directories **Schematics** and **Maps**
+
+--- 
+
+## 🧩 Unity Editor
+*To create your schematic we have also an forked version of the Unity Editor, that is available [here](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)*
+> [!IMPORTANT]
+> Make sure to stay on the branch **Production**. the main branch are the original version of the editor.
 
 ## Credits
 - Original Plugin made by **[Michal78900](https://github.com/Michal78900)**
