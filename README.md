@@ -11,7 +11,7 @@ This fork focuses on implementing additional features, internal improvements, an
 ## 🗃️ Features
 *Here is list of features that are not in the original plugin*
 
-### objects
+### Objects
 - 📦 **Clutter boxes**
   - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
 - 🦫 **CapybaraToy**
