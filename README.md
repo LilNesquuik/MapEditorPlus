@@ -35,8 +35,8 @@ Once your plugin will load, it will create directory `LapAPI/configs/ProjectMER`
 ## 🧩 Unity Editor
 *To create your schematic we have also an forked version of the Unity Editor, that is available [here](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)*
 > [!IMPORTANT]
-> Make sure to stay on the branch **Production**. the main branch are the original version of the editor.
+> Make sure to stay on the branch **[Production](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)**. the main branch are the original version of the editor.
 
-## Credits
+## 🙏🏻 Credits
 - Original Plugin made by **[Michal78900](https://github.com/Michal78900)**
 - Full Credits [here](https://github.com/Michal78900/ProjectMER?tab=readme-ov-file#credits)
