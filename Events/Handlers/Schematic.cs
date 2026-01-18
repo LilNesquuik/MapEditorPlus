@@ -14,6 +14,8 @@ public static class Schematic
 	public static event LabEventHandler<SchematicDestroyedEventArgs> SchematicDestroyed;
 	
 	public static event LabEventHandler<PlayerTriggerEventArgs> PlayerTrigger;
+	
+	public static event LabEventHandler<ScriptBlockSpawnedEventArgs> ScriptBlockSpawned;
 
 	internal static void OnSchematicSpawning(SchematicSpawningEventArgs ev) => SchematicSpawning.InvokeEvent(ev);
 
@@ -24,4 +26,6 @@ public static class Schematic
 	internal static void OnSchematicDestroyed(SchematicDestroyedEventArgs ev) => SchematicDestroyed.InvokeEvent(ev);
 
 	internal static void OnPlayerTrigger(PlayerTriggerEventArgs ev) => PlayerTrigger.InvokeEvent(ev);
+	
+	internal static void OnScriptBlockSpawned(ScriptBlockSpawnedEventArgs ev) => ScriptBlockSpawned.InvokeEvent(ev);
 }
