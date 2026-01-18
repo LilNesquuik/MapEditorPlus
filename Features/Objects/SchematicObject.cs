@@ -1,5 +1,6 @@
 using AdminToys;
 using Mirror;
+using ProjectMER.Events.Arguments;
 using ProjectMER.Events.Handlers;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Serializable.Schematics;
@@ -137,9 +138,9 @@ public class SchematicObject : MonoBehaviour
 		AddRigidbodies();
 		AddWheelColliders();
 		AddAnimators();
+		AddScripts();
 
-		Schematic.OnSchematicSpawned(new(this, Name));
-
+		Schematic.OnSchematicSpawned(new SchematicSpawnedEventArgs(this, Name));
 		return this;
 	}
 
@@ -271,6 +272,26 @@ public class SchematicObject : MonoBehaviour
 		return hasWheelColliders;
 	}
 
+	private bool AddScripts()
+	{
+		bool hasExternalScript = false;
+		string externalScriptPath = Path.Combine(DirectoryPath, $"{Name}-ExternalScript.json");
+		if (!File.Exists(externalScriptPath))
+			return false;
+		
+		foreach (KeyValuePair<int, SerializableScript> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableScript>>(File.ReadAllText(externalScriptPath)))
+		{
+			if (!ObjectFromId.TryGetValue(dict.Key, out Transform objectTransform))
+				continue;
+			
+			Schematic.OnScriptBlockSpawned(new ScriptBlockSpawnedEventArgs(dict.Value, objectTransform.gameObject, this));
+			
+			hasExternalScript = true;
+		}
+		
+		return hasExternalScript;
+	}
+
 
 	public void Destroy() => Destroy(gameObject);
 
@@ -278,7 +299,7 @@ public class SchematicObject : MonoBehaviour
 	{
 		AnimationController.Dictionary.Remove(this);
 		NetworkServer.Destroy(gameObject);
-		Schematic.OnSchematicDestroyed(new(this, Name));
+		Schematic.OnSchematicDestroyed(new SchematicDestroyedEventArgs(this, Name));
 	}
 
 	internal Dictionary<int, Transform> ObjectFromId = [];

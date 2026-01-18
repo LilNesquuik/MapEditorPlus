@@ -5,6 +5,7 @@ using ProjectMER.Features.Objects;
 
 namespace ProjectMER.Events.Arguments;
 
+[Obsolete("Prefer using InteractableToy")]
 public class ButtonInteractedEventArgs : EventArgs, IPickupEvent, IPlayerEvent, ISchematicEvent
 {
 	public ButtonInteractedEventArgs(Pickup button, Player player, SchematicObject schematic)
