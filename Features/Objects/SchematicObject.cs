@@ -63,6 +63,23 @@ public class SchematicObject : MonoBehaviour
 		get => transform.localScale;
 		set => transform.localScale = value;
 	}
+	
+	/// <summary>
+	/// Gets the schematic root network ID.
+	/// </summary>
+	public uint NetId => Base.netId;
+
+	public NetworkIdentity Base
+	{
+		get
+		{
+			if (_base != null)
+				return _base;
+			
+			_base = GetComponent<NetworkIdentity>();
+			return _base;
+		}
+	}
 
 	public IReadOnlyList<GameObject> AttachedBlocks
 	{
@@ -135,10 +152,17 @@ public class SchematicObject : MonoBehaviour
 
 		CreateRecursiveFromID(data.RootObjectId, data.Blocks, transform);
 
-		AddRigidbodies();
-		AddWheelColliders();
-		AddAnimators();
-		AddScripts();
+		if (AddRigidbodies())
+			Logger.Debug($"Added rigidbodies to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddWheelColliders())
+			Logger.Debug($"Added wheel colliders to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddAnimators())
+			Logger.Debug($"Added animators to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddScripts())
+			Logger.Debug($"Added scripts to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
 
 		Schematic.OnSchematicSpawned(new SchematicSpawnedEventArgs(this, Name));
 		return this;
@@ -284,7 +308,7 @@ public class SchematicObject : MonoBehaviour
 			if (!ObjectFromId.TryGetValue(dict.Key, out Transform objectTransform))
 				continue;
 			
-			Schematic.OnScriptBlockSpawned(new ScriptBlockSpawnedEventArgs(dict.Value, objectTransform.gameObject, this));
+			Schematic.OnScriptBlockSpawned(new ScriptBlockSpawnedEventArgs(dict.Value, objectTransform, this));
 			
 			hasExternalScript = true;
 		}
@@ -304,6 +328,7 @@ public class SchematicObject : MonoBehaviour
 
 	internal Dictionary<int, Transform> ObjectFromId = [];
 
+	private NetworkIdentity _base;
 	private readonly List<GameObject> _attachedBlocks = [];
 	private readonly List<NetworkIdentity> _networkIdentities = [];
 	private readonly List<AdminToyBase> _adminToyBases = [];

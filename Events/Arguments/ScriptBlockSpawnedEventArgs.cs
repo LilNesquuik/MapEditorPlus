@@ -7,16 +7,16 @@ namespace ProjectMER.Events.Arguments;
 
 public sealed class ScriptBlockSpawnedEventArgs : EventArgs, ISchematicEvent
 {
-    public ScriptBlockSpawnedEventArgs(SerializableScript script, GameObject gameObject, SchematicObject schematic)
+    public ScriptBlockSpawnedEventArgs(SerializableScript script, Transform transform, SchematicObject schematic)
     {
         Script = script;
-        GameObject = gameObject;
+        Transform = transform;
         Schematic = schematic;
     }
 
     public SerializableScript Script { get; set; }
 
-    public GameObject GameObject { get; set; }
+    public Transform Transform { get; set; }
     
     public SchematicObject Schematic { get; }
 }

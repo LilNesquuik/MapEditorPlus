@@ -5,6 +5,7 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
 using InventorySystem.Items.Firearms.Modules;
 using LabApi.Features.Wrappers;
+using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
@@ -85,18 +86,10 @@ public class ToolGunItem
 
 		ItemDictionary.Add(toolGun.ItemSerial, new ToolGunItem(toolGun));
 
-		ServerSpecificSettingsSync.SendOnJoinFilter = _ => false; // Prevent all users from receiving the tools after joining the server.
-
-		ServerSpecificSettingBase[] extraSettings =
-		[
-			new SSGroupHeader("MapEditorReborn"), 
-			new SSDropdownSetting(int.MaxValue, "Schematic Name", MapUtils.GetAvailableSchematicNames(), isServerOnly: true)
-		];
-
-		ServerSpecificSettingsSync.DefinedSettings = ServerSpecificSettingsSync.DefinedSettings.Concat(extraSettings).ToArray();
-
-		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(itemBase => itemBase.IsToolGun(out ToolGunItem _)));
-
+		ToolGunEventsHandler toolGunHandler = ProjectMER.Singleton.ToolGunEventsHandler;
+		if (!toolGunHandler.IsRegistered)
+			toolGunHandler.IsRegistered = true;
+		
 		return true;
 	}
 
@@ -109,6 +102,13 @@ public class ToolGunItem
 			
 			player.RemoveItem(itemBase);
 			return true;
+		}
+		
+		if (ItemDictionary.Count == 0)
+		{
+			ToolGunEventsHandler toolGunHandler = ProjectMER.Singleton.ToolGunEventsHandler;
+			if (toolGunHandler.IsRegistered)
+				toolGunHandler.IsRegistered = false;
 		}
 
 		return false;

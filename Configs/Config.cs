@@ -4,6 +4,9 @@ namespace ProjectMER.Configs;
 
 public class Config
 {
+	[Description("Enables full debug logging for this plugin.")]
+	public bool FullDebug { get; set; } = false;
+	
 	[Description("Enables FileSystemWatcher in this plugin. What it does is when you manually change values in a currently loaded map file, after saving the file the plugin will automatically reload the map in-game with the new changes so you won't need to do it yourself.")]
     public bool EnableFileSystemWatcher { get; set; } = false;
 

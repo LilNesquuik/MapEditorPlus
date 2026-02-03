@@ -23,6 +23,8 @@ public class SerializableClutter : SerializableObject, ILockedPosition
         connectorSpawnpoint.transform.SetPositionAndRotation(position, rotation);
         connectorSpawnpoint.transform.localScale = Scale;
         
+        _prevType = ConnectorType;
+        
         NetworkServer.UnSpawn(connectorSpawnpoint.gameObject);
         NetworkServer.Spawn(connectorSpawnpoint.gameObject);
 
@@ -44,10 +46,14 @@ public class SerializableClutter : SerializableObject, ILockedPosition
                 SpawnableRoomConnectorType.ClutterAngledFences => PrefabManager.AngledFencesOpenConnector,
                 SpawnableRoomConnectorType.ClutterHugeOrangePipes => PrefabManager.HugeOrangePipesOpenConnector,
                 SpawnableRoomConnectorType.ClutterPipesLong => PrefabManager.PipesLongOpenConnector,
-                _ => throw new InvalidOperationException($"No prefab defined for connector type {ConnectorType}")
+                _ => throw new InvalidOperationException($"No prefab defined for connector type: {ConnectorType}")
             };
 
             return prefab;
         }
     }
+    
+    public override bool RequiresReloading => ConnectorType != _prevType || base.RequiresReloading;
+
+    internal SpawnableRoomConnectorType _prevType;
 }
