@@ -2,6 +2,6 @@
 
 public class SerializableScript
 {
-    public string ScriptId { get; set; }
-    public IReadOnlyDictionary<string, string> Properties { get; set; }
+    public string ScriptName { get; set; }
+    public Dictionary<string, string> Properties { get; set; }
 }
