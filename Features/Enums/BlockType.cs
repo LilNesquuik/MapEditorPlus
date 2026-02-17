@@ -6,6 +6,11 @@ namespace ProjectMER.Features.Enums;
 public enum BlockType
 {
 	/// <summary>
+	/// Represents an transform link.
+	/// </summary>
+    Link = -1,
+    
+	/// <summary>
 	/// Represents an empty transform.
 	/// </summary>
 	Empty = 0,
@@ -45,7 +50,18 @@ public enum BlockType
 	/// </summary>
 	Locker = 7,
 
+	/// <summary>
+	/// Represents a Text.
+	/// </summary>
 	Text = 8,
+	
+	/// <summary>
+	/// Represents a Interactable.
+	/// </summary>
 	Interactable = 9,
+	
 	Waypoint = 10,
+	Capybara = 11,
+	Trigger = 12,
+    Speaker = 13
 }

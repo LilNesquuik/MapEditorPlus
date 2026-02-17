@@ -17,4 +17,6 @@ public enum ToolGunObjectType
 	Teleport = 12,
 	Interactable = 13,
 	Waypoint = 14,
+	Clutter = 15,
+	Trigger = 16
 }

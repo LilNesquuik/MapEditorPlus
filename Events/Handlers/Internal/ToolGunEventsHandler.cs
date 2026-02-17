@@ -11,11 +11,26 @@ namespace ProjectMER.Events.Handlers.Internal;
 public class ToolGunEventsHandler : CustomEventsHandler
 {
 	private static CoroutineHandle _toolGunCoroutine;
-
-	public override void OnServerRoundStarted()
+	
+	private bool _isRegistered;
+	public bool IsRegistered
 	{
-		Timing.KillCoroutines(_toolGunCoroutine);
-		_toolGunCoroutine = Timing.RunCoroutine(ToolGunGUI());
+		get => _isRegistered;
+		set
+		{
+			if (!value && _isRegistered)
+			{
+				_toolGunCoroutine = Timing.RunCoroutine(ToolGunGUI());
+				CustomHandlersManager.RegisterEventsHandler(this);
+			}
+			else if (value && !_isRegistered)
+			{
+				Timing.KillCoroutines(_toolGunCoroutine);
+				CustomHandlersManager.UnregisterEventsHandler(this);
+			}
+			
+			_isRegistered = value;
+		}
 	}
 
 	private static IEnumerator<float> ToolGunGUI()

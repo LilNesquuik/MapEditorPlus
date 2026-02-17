@@ -60,7 +60,10 @@ public static class ToolGunHandler
 				}
 
 			default:
-				serializableObject.Position = position;
+				
+				serializableObject.Position = LinkObject.TryGetClosestLinkObject(position, out LinkObject linkObject)
+					? linkObject.transform.position
+					: position;
 				break;
 		}
 

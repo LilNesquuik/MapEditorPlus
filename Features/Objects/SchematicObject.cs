@@ -1,5 +1,6 @@
 using AdminToys;
 using Mirror;
+using ProjectMER.Events.Arguments;
 using ProjectMER.Events.Handlers;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Serializable.Schematics;
@@ -16,6 +17,11 @@ public class SchematicObject : MonoBehaviour
 	/// Gets the schematic name.
 	/// </summary>
 	public string Name { get; private set; }
+	
+	/// <summary>
+	/// Gets the author of the schematic.
+	/// </summary>
+	public string? Author { get; private set; }
 
 	/// <summary>
 	/// Gets a schematic directory path.
@@ -28,10 +34,7 @@ public class SchematicObject : MonoBehaviour
 	public Vector3 Position
 	{
 		get => transform.position;
-		set
-		{
-			transform.position = value;
-		}
+		set => transform.position = value;
 	}
 
 	/// <summary>
@@ -40,10 +43,7 @@ public class SchematicObject : MonoBehaviour
 	public Quaternion Rotation
 	{
 		get => transform.rotation;
-		set
-		{
-			transform.rotation = value;
-		}
+		set => transform.rotation = value;
 	}
 
 	/// <summary>
@@ -61,9 +61,23 @@ public class SchematicObject : MonoBehaviour
 	public Vector3 Scale
 	{
 		get => transform.localScale;
-		set
+		set => transform.localScale = value;
+	}
+	
+	/// <summary>
+	/// Gets the schematic root network ID.
+	/// </summary>
+	public uint NetId => Base.netId;
+
+	public NetworkIdentity Base
+	{
+		get
 		{
-			transform.localScale = value;
+			if (_base != null)
+				return _base;
+			
+			_base = GetComponent<NetworkIdentity>();
+			return _base;
 		}
 	}
 
@@ -75,12 +89,12 @@ public class SchematicObject : MonoBehaviour
 				return _attachedBlocks;
 
 			_attachedBlocks.Clear();
-			foreach (Transform transform in GetComponentsInChildren<Transform>())
+			foreach (Transform child in GetComponentsInChildren<Transform>())
 			{
-				if (transform == this.transform)
+				if (child == this.transform)
 					continue;
 
-				_attachedBlocks.Add(transform.gameObject);
+				_attachedBlocks.Add(child.gameObject);
 			}
 
 			return _attachedBlocks;
@@ -129,6 +143,7 @@ public class SchematicObject : MonoBehaviour
 	{
 		Name = Path.GetFileNameWithoutExtension(data.Path);
 		DirectoryPath = data.Path;
+		Author = data.Author;
 
 		ObjectFromId = new Dictionary<int, Transform>(data.Blocks.Count + 1)
 		{
@@ -137,11 +152,19 @@ public class SchematicObject : MonoBehaviour
 
 		CreateRecursiveFromID(data.RootObjectId, data.Blocks, transform);
 
-		AddRigidbodies();
-		AddAnimators();
+		if (AddRigidbodies())
+			Logger.Debug($"Added rigidbodies to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddWheelColliders())
+			Logger.Debug($"Added wheel colliders to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddAnimators())
+			Logger.Debug($"Added animators to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
+		
+		if (AddScripts())
+			Logger.Debug($"Added scripts to schematic {Name}", ProjectMER.Singleton.Config!.FullDebug);
 
-		Schematic.OnSchematicSpawned(new(this, Name));
-
+		Schematic.OnSchematicSpawned(new SchematicSpawnedEventArgs(this, Name));
 		return this;
 	}
 
@@ -243,6 +266,56 @@ public class SchematicObject : MonoBehaviour
 		return hasRigidbodies;
 	}
 
+	private bool AddWheelColliders()
+	{
+		bool hasWheelColliders = false;
+		string wheelColliderPath = Path.Combine(DirectoryPath, $"{Name}-WheelColliders.json");
+		if (!File.Exists(wheelColliderPath))
+			return false;
+
+		foreach (KeyValuePair<int, SerializableWheelCollider> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableWheelCollider>>(File.ReadAllText(wheelColliderPath)))
+		{
+			if (!ObjectFromId.TryGetValue(dict.Key, out Transform transform))
+				continue;
+			
+			if (!transform.gameObject.TryGetComponent(out WheelCollider wheelCollider))
+				wheelCollider = transform.gameObject.AddComponent<WheelCollider>();
+			
+			wheelCollider.mass = dict.Value.Mass;
+			wheelCollider.radius = dict.Value.Radius;
+			wheelCollider.wheelDampingRate = dict.Value.DampingRate;
+			wheelCollider.forceAppPointDistance = dict.Value.ForceApplicationPoint;
+			wheelCollider.center = dict.Value.Center;
+			wheelCollider.suspensionSpring = dict.Value.SuspensionSpring;
+			wheelCollider.forwardFriction = dict.Value.ForwardFrictionSpring;
+			wheelCollider.sidewaysFriction = dict.Value.SideFrictionSpring;
+			
+			hasWheelColliders = true;
+		}
+		
+		return hasWheelColliders;
+	}
+
+	private bool AddScripts()
+	{
+		bool hasExternalScript = false;
+		string externalScriptPath = Path.Combine(DirectoryPath, $"{Name}-ExternalScript.json");
+		if (!File.Exists(externalScriptPath))
+			return false;
+		
+		foreach (KeyValuePair<int, SerializableScript> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableScript>>(File.ReadAllText(externalScriptPath)))
+		{
+			if (!ObjectFromId.TryGetValue(dict.Key, out Transform objectTransform))
+				continue;
+			
+			Schematic.OnScriptBlockSpawned(new ScriptBlockSpawnedEventArgs(dict.Value, objectTransform, this));
+			
+			hasExternalScript = true;
+		}
+		
+		return hasExternalScript;
+	}
+
 
 	public void Destroy() => Destroy(gameObject);
 
@@ -250,11 +323,12 @@ public class SchematicObject : MonoBehaviour
 	{
 		AnimationController.Dictionary.Remove(this);
 		NetworkServer.Destroy(gameObject);
-		Schematic.OnSchematicDestroyed(new(this, Name));
+		Schematic.OnSchematicDestroyed(new SchematicDestroyedEventArgs(this, Name));
 	}
 
 	internal Dictionary<int, Transform> ObjectFromId = [];
 
+	private NetworkIdentity _base;
 	private readonly List<GameObject> _attachedBlocks = [];
 	private readonly List<NetworkIdentity> _networkIdentities = [];
 	private readonly List<AdminToyBase> _adminToyBases = [];

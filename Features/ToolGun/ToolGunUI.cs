@@ -44,12 +44,12 @@ public static class ToolGunUI
 		}
 
 		foreach (string property in properties.GetColoredProperties(instance))
-			{
-				sb.Append($"<size=50%>");
-				sb.Append(property);
-				sb.Append("</size>");
-				sb.AppendLine();
-			}
+		{
+			sb.Append($"<size=50%>");
+			sb.Append(property);
+			sb.Append("</size>");
+			sb.AppendLine();
+		}
 
 		if (offset > 0)
 			sb.AppendLine();
@@ -85,7 +85,7 @@ public static class ToolGunUI
 			string output;
 			if (toolGun.SelectedObjectToSpawn == ToolGunObjectType.Schematic)
 			{
-				if (ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, 0, out SSDropdownSetting dropdownSetting) && dropdownSetting.TryGetSyncSelectionText(out string schematicName))
+				if (ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, int.MaxValue, out SSDropdownSetting dropdownSetting) && dropdownSetting.TryGetSyncSelectionText(out string schematicName))
 					output = schematicName.ToUpper();
 				else
 					output = "Please select schematic in options";
@@ -130,16 +130,8 @@ public static class ToolGunUI
 	{
 		Room room = RoomExtensions.GetRoomAtPosition(player.Camera.transform.position);
 		List<Room> list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
-
-		string roomString;
-		if (list.Count == 1)
-		{
-			roomString = room.GetRoomStringId();
-		}
-		else
-		{
-			roomString = $"{room.GetRoomStringId()} ({list.IndexOf(room)}) ({list.Count})";
-		}
+		
+		string roomString = list.Count == 1 ? room.GetRoomStringId() : $"{room.GetRoomStringId()} ({list.IndexOf(room)}) ({list.Count})";
 
 		ListPool<Room>.Shared.Return(list);
 		return roomString;

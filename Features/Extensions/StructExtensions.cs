@@ -57,6 +57,14 @@ public static class StructExtensions
 
 		return new Vector2(Convert.ToSingle(dict["x"]), Convert.ToSingle(dict["y"]));
 	}
+	
+	public static Vector3 ToVector3(this object jObject)
+	{
+		if (jObject is not IDictionary<string, object> dict)
+			return Vector3.zero;
+
+		return new Vector3(Convert.ToSingle(dict["x"]), Convert.ToSingle(dict["y"]), Convert.ToSingle(dict["z"]));
+	}
 
 	public static bool TryParseToFloat(this string s, out float result) => float.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out result);
 

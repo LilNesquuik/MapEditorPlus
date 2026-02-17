@@ -1,28 +1,53 @@
-# Note: This is WIP project of MapEditorReborn for LabAPI. Join discord for more info.
+# MapEditorPlus - Object & Schematic Creator
 
-[![MapEditorReborn](https://i.imgur.com/CeemJnt.png)](https://discord.gg/JwAfeSd79u)
+**MapEditorPlus** is a fork of **[ProjectMER OR MapEditorReborn](https://github.com/Michal78900/ProjectMER)**, originally created to support a specific project.
+This fork focuses on implementing additional features, internal improvements, and project-specific adjustments that are not part of the upstream scope.
 
-<h1 align="center">MapEditorReborn (LabAPI edition)</h1>
-<h3 align="center"><a href="https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/">SCP: Secret Laboratory</a> plugin allowing to spawn and modify various objects.</h3>
-<div align="center">
-    
-<img src="https://img.shields.io/github/downloads/Michal78900/MapEditorReborn/total?style=for-the-badge&logo=github" alt="Downloads">
-<a href="https://discord.gg/JwAfeSd79u">
-    <img src="https://img.shields.io/discord/947849283514814486?style=for-the-badge&logo=discord" alt="Chat on Discord">
-</a>    
+> [!WARNING]
+> This fork are not fully compatible with the original plugin, and some features may not work as original behavior.
 
-</div>
+---
 
-# Installation
-Put your [`MapEditorReborn.dll`](https://github.com/Michal78900/ProjectMER/releases/latest) file in `LabAPI-beta/plugins` path.
-Once your plugin will load, it will create directory `LapAPI-beta/configs/ProjectMER`; This directory will contain two sub-directories **Schematics** and **Maps**
+## 🗃️ Features
+*Here is list of features that are not in the original plugin*
 
-**[Full MER tutorial](https://docs.google.com/document/d/10V2PnqobeBFb2xTFIHSGmM2KK9_h2wethiVQdcjyhGc/edit?usp=sharing)**
+### Objects
+- 📦 **Clutter boxes**
+  - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
+- 🦫 **CapybaraToy**
+  - Allows spawning a Capybara and you can enable or disable its collision
+- 🧿 **Trigger Zone**
+  - In your schematic, or directly in the game, create an `Trigger` 
+  - You can define the effect that will be applied when a player enters the trigger zone or let it empty to do nothing
+  - You can also configure trigger type, choose between `Enter`, `Stay` or `Exit`  
+  - An event also exists, subscribe to `PlayerTriggerEventArgs` and make your own logic
+- ⛓️‍💥 **Link Object**
+  - In your schematic, create an empty object and add the `LinkComponent` to it
+  - If you move an object close to an object with `LinkComponent`, it will be linked to it
+  - It will improve the map making experience
 
-**More support can be found on a [Discord](https://discord.gg/JwAfeSd79u) server**
+### Internal improvements
+- 🚗 **WheelColliders** Support
+  - Configure your wheel colliders and it will be compiled in the schematic
+  - Useful if you wanna make a vehicle but to lazy to hardcode the wheel colliders values
+- 📝 **TMP FontStyles** Support
+  - Too lazy of writing unity rich text tag ? Use the native unity font styles buttons
+  - At the compile time, it will convert the unity font styles to the unity rich text tag
+  - But... in the other way, if you decompile an `TextToy`, it will use the unity rich text tag
 
-# Credits
-- Plugin made by [Michal78900](https://github.com/Michal78900)
-- Original plugin idea and code overhaul by [Killers0992](https://github.com/Killers0992)
-- Another code overhaul and documentation by [Nao](https://github.com/NaoUnderscore)
-- Testing the plugin by Cegła, The Jukers server staff and others
+---
+
+## 📬 Installation
+- Put your [`MapEditorReborn.dll`](https://github.com/LilNesquuik/MapEditorPlus/releases/latest) file in `LabAPI/plugins` path.
+Once your plugin will load, it will create directory `LapAPI/configs/ProjectMER`; This directory will contain two sub-directories **Schematics** and **Maps**
+
+--- 
+
+## 🧩 Unity Editor
+*To create your schematic we have also an forked version of the Unity Editor, that is available [here](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)*
+> [!IMPORTANT]
+> Make sure to stay on the branch **[Production](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)**. the main branch are the original version of the editor.
+
+## 🙏🏻 Credits
+- Original Plugin made by **[Michal78900](https://github.com/Michal78900)**
+- Full Credits [here](https://github.com/Michal78900/ProjectMER?tab=readme-ov-file#credits)
