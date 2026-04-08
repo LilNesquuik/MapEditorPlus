@@ -12,25 +12,10 @@ public class ToolGunEventsHandler : CustomEventsHandler
 {
 	private static CoroutineHandle _toolGunCoroutine;
 	
-	private bool _isRegistered;
-	public bool IsRegistered
+	public override void OnServerRoundStarted()
 	{
-		get => _isRegistered;
-		set
-		{
-			if (!value && _isRegistered)
-			{
-				_toolGunCoroutine = Timing.RunCoroutine(ToolGunGUI());
-				CustomHandlersManager.RegisterEventsHandler(this);
-			}
-			else if (value && !_isRegistered)
-			{
-				Timing.KillCoroutines(_toolGunCoroutine);
-				CustomHandlersManager.UnregisterEventsHandler(this);
-			}
-			
-			_isRegistered = value;
-		}
+		Timing.KillCoroutines(_toolGunCoroutine);
+		_toolGunCoroutine = Timing.RunCoroutine(ToolGunGUI());
 	}
 
 	private static IEnumerator<float> ToolGunGUI()
@@ -41,6 +26,9 @@ public class ToolGunEventsHandler : CustomEventsHandler
 
 			foreach (Player player in Player.List)
 			{
+				if (!player.RemoteAdminAccess)
+					continue;
+				
 				if (!player.CurrentItem.IsToolGun(out ToolGunItem _) && !ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject _))
 					continue;
 

@@ -3,6 +3,9 @@ using ProjectMER.Features.Serializable.Schematics;
 
 namespace ProjectMER.Events.Arguments;
 
+/// <summary>
+/// Fired when a schematic is spawning.
+/// </summary>
 public class SchematicSpawningEventArgs : EventArgs, ICancellableEvent
 {
 	public SchematicSpawningEventArgs(SchematicObjectDataList data, string name)
@@ -13,8 +16,6 @@ public class SchematicSpawningEventArgs : EventArgs, ICancellableEvent
 	}
 
 	public SchematicObjectDataList Data { get; set; }
-
 	public string Name { get; }
-
 	public bool IsAllowed { get; set; }
 }

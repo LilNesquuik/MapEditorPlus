@@ -3,6 +3,9 @@ using ProjectMER.Features.Objects;
 
 namespace ProjectMER.Events.Arguments;
 
+/// <summary>
+/// Fired when a schematic is spawned
+/// </summary>
 public class SchematicSpawnedEventArgs : EventArgs, ISchematicEvent
 {
 	public SchematicSpawnedEventArgs(SchematicObject schematic, string name)

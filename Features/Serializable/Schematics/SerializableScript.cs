@@ -1,7 +1,8 @@
 ﻿namespace ProjectMER.Features.Serializable.Schematics;
 
-public class SerializableScript
+[Serializable]
+public sealed class SerializableScript
 {
-    public string ScriptName { get; set; }
-    public Dictionary<string, string> Properties { get; set; }
+    public string ScriptName { get; init; }
+    public Dictionary<string, string> Properties { get; init; }
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ProjectMER.Features.Objects;
 
-public class TriggerObject : MonoBehaviour
+public sealed class TriggerObject : MonoBehaviour
 {
     public TriggerType triggerType = TriggerType.OnEnter;
     public string? effectName;
@@ -15,12 +15,27 @@ public class TriggerObject : MonoBehaviour
     public byte intensity;
     public bool addDuration;
 
+    private BoxCollider _collider;
+    
+    public void Start()
+    {
+        _collider = gameObject.AddComponent<BoxCollider>();
+        _collider.isTrigger = true;
+        _collider.size = Vector3.one;
+        _collider.center = Vector3.zero;
+    }
+
+    public void OnDestroy()
+    {
+        Destroy(_collider);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (triggerType is not TriggerType.OnEnter) 
             return;
-    
-        Player? player = Player.Get(other.gameObject);
+        
+        Player? player = Player.Get(other.transform.root.gameObject);
         if (player != null)
             OnTriggered(player);
     }
@@ -30,7 +45,7 @@ public class TriggerObject : MonoBehaviour
         if (triggerType is not TriggerType.OnStay) 
             return;
     
-        Player? player = Player.Get(other.gameObject);
+        Player? player = Player.Get(other.transform.root.gameObject);
         if (player != null)
             OnTriggered(player);
     }
@@ -39,8 +54,8 @@ public class TriggerObject : MonoBehaviour
     {
         if (triggerType is not TriggerType.OnExit) 
             return;
-    
-        Player? player = Player.Get(other.gameObject);
+
+        Player? player = Player.Get(other.transform.root.gameObject);
         if (player != null)
             OnTriggered(player);
     }

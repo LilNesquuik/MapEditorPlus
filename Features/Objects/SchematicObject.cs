@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using AdminToys;
+using JetBrains.Annotations;
 using Mirror;
 using ProjectMER.Events.Arguments;
 using ProjectMER.Events.Handlers;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Serializable.Schematics;
+using ProjectMER.Features.Utils;
 using UnityEngine;
 using Utf8Json;
 using Utils.NonAllocLINQ;
@@ -65,78 +68,88 @@ public class SchematicObject : MonoBehaviour
 	}
 	
 	/// <summary>
-	/// Gets the schematic root network ID.
+	/// Gets the schematic network ID.
 	/// </summary>
 	public uint NetId => Base.netId;
 
-	public NetworkIdentity Base
+	public PrimitiveObjectToy Base
 	{
 		get
 		{
 			if (_base != null)
 				return _base;
 			
-			_base = GetComponent<NetworkIdentity>();
+			_base = GetComponent<PrimitiveObjectToy>();
 			return _base;
 		}
 	}
 
-	public IReadOnlyList<GameObject> AttachedBlocks
+	/// <summary>
+	/// Gets all the blocks attached to this schematic.
+	/// </summary>
+	public IReadOnlyList<GameObject> AttachedBlocks => CacheUtils.GetOrRefresh(_attachedBlocks, cache =>
 	{
-		get
+		Transform[] blocks = GetComponentsInChildren<Transform>(true);
+		
+		int count = blocks.Length;
+		int expectedCount = count - 1;
+		if (expectedCount > 0 && cache.Capacity < expectedCount)
+			cache.Capacity = expectedCount;
+		
+		Transform root = transform;
+		for (int i = 0; i < count; i++)
 		{
-			if (_attachedBlocks.Count != 0 && _attachedBlocks.All(x => x != null))
-				return _attachedBlocks;
-
-			_attachedBlocks.Clear();
-			foreach (Transform child in GetComponentsInChildren<Transform>())
-			{
-				if (child == this.transform)
-					continue;
-
-				_attachedBlocks.Add(child.gameObject);
-			}
-
-			return _attachedBlocks;
+			Transform block = blocks[i];
+			if (block != root)
+				cache.Add(block.gameObject);
 		}
-	}
+	});
 
-	public IReadOnlyList<NetworkIdentity> NetworkIdentities
+	/// <summary>
+	/// Gets all the network identities attached to this schematic.
+	/// </summary>
+	public IReadOnlyList<NetworkIdentity> NetworkIdentities => CacheUtils.GetOrRefresh(_networkIdentities, cache =>
 	{
-		get
+		NetworkIdentity[] identities = GetComponentsInChildren<NetworkIdentity>(true);
+
+		int count = identities.Length;
+		int expectedCount = count - 1;
+		if (expectedCount > 0 && cache.Capacity < expectedCount)
+			cache.Capacity = expectedCount;
+
+		GameObject root = gameObject;
+		for (int i = 0; i < count; i++)
 		{
-			if (_networkIdentities.Count > 0 && _networkIdentities.All(x => x != null))
-				return _networkIdentities;
-
-			_networkIdentities.Clear();
-			foreach (GameObject block in AttachedBlocks)
-			{
-				if (block.TryGetComponent(out NetworkIdentity networkIdentity))
-					_networkIdentities.Add(networkIdentity);
-			}
-
-			return _networkIdentities;
+			NetworkIdentity identity = identities[i];
+			if (identity.gameObject != root)
+				cache.Add(identity);
 		}
-	}
+	});
 
-	public IReadOnlyList<AdminToyBase> AdminToyBases
+	/// <summary>
+	/// Gets all the admin toy bases attached to this schematic.
+	/// </summary>
+	public IReadOnlyList<AdminToyBase> AdminToyBases => CacheUtils.GetOrRefresh(_adminToyBases, cache =>
 	{
-		get
+		AdminToyBase[] adminToyBases = GetComponentsInChildren<AdminToyBase>(true);
+		
+		int count = adminToyBases.Length;
+		int expectedCount = count - 1;
+		if (expectedCount > 0 && cache.Capacity < expectedCount)
+			cache.Capacity = expectedCount;
+		
+		GameObject root = gameObject;
+		for (int i = 0; i < count; i++)
 		{
-			if (_adminToyBases.Count > 0 && _adminToyBases.All(x => x != null))
-				return _adminToyBases;
-
-			_adminToyBases.Clear();
-			foreach (NetworkIdentity netId in NetworkIdentities)
-			{
-				if (netId.TryGetComponent(out AdminToyBase adminToyBase))
-					_adminToyBases.Add(adminToyBase);
-			}
-
-			return _adminToyBases;
+			AdminToyBase adminToyBase = adminToyBases[i];
+			if (adminToyBase.gameObject != root)
+				cache.Add(adminToyBase);
 		}
-	}
+	});
 
+	/// <summary>
+	/// Gets the animation controller for this schematic.
+	/// </summary>
 	public AnimationController AnimationController => AnimationController.Get(this);
 
 	public SchematicObject Init(SchematicObjectDataList data)
@@ -315,7 +328,56 @@ public class SchematicObject : MonoBehaviour
 		
 		return hasExternalScript;
 	}
+	
+	/// <summary>
+	/// Attempts to read and deserialize a JSON resource from the file system.
+	/// The file is looked up in <see cref="DirectoryPath"/> under the name <c>{Name}-{fileName}.json</c>.
+	/// </summary>
+	/// <param name="fileName">The resource name (without extension), used to build the file path.</param>
+	/// <param name="resource">
+	/// The deserialized resource if the operation succeeds; otherwise <c>default</c>.
+	/// </param>
+	/// <typeparam name="T">The type to deserialize the JSON content into.</typeparam>
+	/// <returns>
+	/// <c>true</c> if the file exists and was successfully deserialized; <c>false</c> otherwise.
+	/// </returns>
+	public bool TryLoadResource<T>(string fileName, out T? resource) where T : notnull
+	{
+		string path = Path.Combine(DirectoryPath, $"{Name}-{name}.json");
+		if (!File.Exists(path))
+		{
+			resource = default!;
+			return false;
+		}
+		
+		try
+		{
+			string json = File.ReadAllText(path);
 
+			resource = JsonSerializer.Deserialize<T>(json);
+			return true;
+		}
+		catch
+		{
+			resource = default!;
+			return false;
+		}
+	}
+
+	/// <summary>
+	/// Reads and deserializes a JSON resource from the file system.
+	/// Returns <c>default</c> if the file is missing or deserialization fails.
+	/// </summary>
+	/// <param name="fileName">The resource name (without extension), used to build the file path.</param>
+	/// <typeparam name="T">The type to deserialize the JSON content into.</typeparam>
+	/// <returns>
+	/// The deserialized resource, or <c>default</c> on failure.
+	/// </returns>
+	/// <seealso cref="TryLoadResource{T}(string, out T)">Safe version that returns a boolean instead of throwing.</seealso>
+	public T LoadResource<T>(string fileName) where T : notnull
+	{
+		return TryLoadResource(fileName, out T? resource) ? resource! : default!;
+	}
 
 	public void Destroy() => Destroy(gameObject);
 
@@ -328,7 +390,7 @@ public class SchematicObject : MonoBehaviour
 
 	internal Dictionary<int, Transform> ObjectFromId = [];
 
-	private NetworkIdentity _base;
+	private PrimitiveObjectToy _base;
 	private readonly List<GameObject> _attachedBlocks = [];
 	private readonly List<NetworkIdentity> _networkIdentities = [];
 	private readonly List<AdminToyBase> _adminToyBases = [];

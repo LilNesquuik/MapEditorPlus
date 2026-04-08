@@ -128,11 +128,11 @@ public class ProjectMER : Plugin<Config>
 
 	public override string Name => "ProjectMER";
 
-	public override string Description => "MER LabAPI";
+	public override string Description => "A fork from ProjectMER with additional features and improvements.";
 
-	public override string Author => "Michal78900";
+	public override string Author => "LilNesquuik";
   
-	public override Version Version => new(2026, 1, 0, 0);
+	public override Version Version => new(2026, 2, 0, 0);
 
 	public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
 }

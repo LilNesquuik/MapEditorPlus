@@ -20,7 +20,7 @@ public class Statistics : ICommand
     public string[] Aliases { get; } = [ "stats", "sts" ];
 
     /// <inheritdoc/>
-    public string Description => "Gives statistics about the admintoys spawned.";
+    public string Description => "Gives statistics about schematics spawned.";
 
     public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
     {
@@ -33,23 +33,31 @@ public class Statistics : ICommand
         StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();
         stringBuilder.AppendLine("Schematics:");
         
+        Dictionary<Type, int> entries = new();
+        Dictionary<Type, int> staticEntries = new();
+        
         foreach (SchematicObject schematic in Object.FindObjectsOfType<SchematicObject>())
         {
-            Dictionary<Type, int> dictionaryPool = DictionaryPool<Type, int>.Get();
+            entries.Clear();
+            staticEntries.Clear();
             
             stringBuilder.AppendLine($"<b>{schematic.Name}</b>");
             foreach (AdminToyBase adminToy in schematic.AdminToyBases)
             {
-                dictionaryPool.TryGetValue(adminToy.GetType(), out int count);
-                dictionaryPool[adminToy.GetType()] = count + 1;
+                Type adminToyType = adminToy.GetType();
+                
+                entries.TryGetValue(adminToyType, out int count);
+                entries[adminToyType] = count + 1;
+
+                staticEntries.TryGetValue(adminToyType, out int staticCount);
+                if (adminToy.IsStatic)
+                    staticEntries[adminToyType] = staticCount + 1;
             }
 
-            foreach (KeyValuePair<Type, int> entry in dictionaryPool)
-                stringBuilder.AppendLine($"└─<b>{entry.Key.Name}:</b> <u>{entry.Value}</u>");
+            foreach (KeyValuePair<Type, int> entry in entries)
+                stringBuilder.AppendLine($"└─<b>{entry.Key.Name}:</b> <u>{entry.Value}</u> (Static: {(staticEntries.TryGetValue(entry.Key, out int count) ? count : 0)})");
             
             stringBuilder.AppendLine();
-            
-            DictionaryPool<Type, int>.Release(dictionaryPool);
         }
 
         response = StringBuilderPool.Shared.ToStringReturn(stringBuilder);

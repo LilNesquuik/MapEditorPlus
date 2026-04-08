@@ -16,6 +16,8 @@ namespace ProjectMER.Features;
 
 public static class PrefabManager
 {
+	private static bool _isInitialized;
+	
 	public static PrimitiveObjectToy PrimitiveObject { get; private set; }
 
 	public static LightSourceToy LightSource { get; private set; }
@@ -73,9 +75,14 @@ public static class PrefabManager
 	public static SpawnableRoomConnector AngledFencesOpenConnector { get; private set; }
 	public static SpawnableRoomConnector HugeOrangePipesOpenConnector { get; private set; }
 	public static SpawnableRoomConnector PipesLongOpenConnector { get; private set; }
+	
+	public static Scp079Generator Generator { get; private set; }
 
 	public static void RegisterPrefabs()
 	{
+		if (_isInitialized)
+			return;
+		
 		foreach (GameObject gameObject in NetworkClient.prefabs.Values)
 		{
 			if (gameObject.TryGetComponent(out PrimitiveObjectToy primitiveObjectToy))
@@ -276,6 +283,14 @@ public static class PrefabManager
 						continue;
 				}
 			}
+			
+			if (gameObject.TryGetComponent(out Scp079Generator generator))
+			{
+				Generator = generator;
+				continue;
+			}
 		}
+		
+		_isInitialized = true;
 	}
 }

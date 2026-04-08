@@ -5,18 +5,23 @@ using UnityEngine;
 
 namespace ProjectMER.Events.Arguments;
 
-public sealed class ScriptBlockSpawnedEventArgs : EventArgs, ISchematicEvent
+public sealed class ScriptBlockSpawnedEventArgs(
+    SerializableScript script,
+    Transform transform,
+    SchematicObject schematic)
+    : EventArgs, ISchematicEvent
 {
-    public ScriptBlockSpawnedEventArgs(SerializableScript script, Transform transform, SchematicObject schematic)
-    {
-        Script = script;
-        Transform = transform;
-        Schematic = schematic;
-    }
-
-    public SerializableScript Script { get; set; }
-
-    public Transform Transform { get; set; }
+    public SerializableScript Script { get; } = script;
+    public Transform Transform { get; } = transform;
+    public SchematicObject Schematic { get; } = schematic;
     
-    public SchematicObject Schematic { get; }
+    /// <summary>
+    /// Get the name of the spawned script
+    /// </summary>
+    public string Name => Script.ScriptName;
+    
+    /// <summary>
+    /// Get the properties of the spawned script as a <see cref="Dictionary{TKey,TValue}"/>
+    /// </summary>
+    public Dictionary<string, string> Properties => Script.Properties;
 }

@@ -11,7 +11,8 @@ using SpawnableCullingParent = AdminToys.SpawnableCullingParent;
 
 namespace ProjectMER.Features.Serializable.Schematics;
 
-public class SerializableSchematic : SerializableObject
+[Serializable]
+public sealed class SerializableSchematic : SerializableObject
 {
 	public string SchematicName { get; set; } = "None";
 
