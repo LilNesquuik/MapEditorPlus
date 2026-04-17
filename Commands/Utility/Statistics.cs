@@ -41,7 +41,10 @@ public class Statistics : ICommand
             entries.Clear();
             staticEntries.Clear();
             
-            stringBuilder.AppendLine($"<b>{schematic.Name}</b>");
+            stringBuilder.Append("<b>");
+            stringBuilder.Append(schematic.Name);
+            stringBuilder.Append("</b>");
+            
             foreach (AdminToyBase adminToy in schematic.AdminToyBases)
             {
                 Type adminToyType = adminToy.GetType();
@@ -55,7 +58,16 @@ public class Statistics : ICommand
             }
 
             foreach (KeyValuePair<Type, int> entry in entries)
-                stringBuilder.AppendLine($"└─<b>{entry.Key.Name}:</b> <u>{entry.Value}</u> (Static: {(staticEntries.TryGetValue(entry.Key, out int count) ? count : 0)})");
+            {
+                stringBuilder.Append("└─<b>");
+                stringBuilder.Append(entry.Key.Name);
+                stringBuilder.Append(":</b> <u>");
+                stringBuilder.Append(entry.Value);
+                stringBuilder.Append("</u>");
+                stringBuilder.Append(" (Static: ");
+                stringBuilder.Append(staticEntries.TryGetValue(entry.Key, out int count) ? count : 0);
+                stringBuilder.AppendLine(")");
+            }
             
             stringBuilder.AppendLine();
         }
