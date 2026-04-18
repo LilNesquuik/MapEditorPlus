@@ -53,6 +53,7 @@ public class SchematicBlockData
 			BlockType.Waypoint => CreateWaypoint(),
 			BlockType.Capybara => CreateCapybara(),
 			BlockType.Trigger => CreateTrigger(),
+			BlockType.Camera => CreateCamera(),
 			_ => CreateEmpty(true)
 		};
 
@@ -219,5 +220,25 @@ public class SchematicBlockData
 		triggerObject.addDuration = Convert.ToBoolean(Properties["AddDuration"]);
 		
 		return gameObject;
+	}
+	
+	private GameObject CreateCamera()
+	{
+		Scp079CameraToy cameraObject = (CameraType)Convert.ToInt32(Properties["CameraType"]) switch
+		{
+			CameraType.Lcz   => Object.Instantiate(PrefabManager.CameraLcz),
+			CameraType.Hcz   => Object.Instantiate(PrefabManager.CameraHcz),
+			CameraType.Ez    => Object.Instantiate(PrefabManager.CameraEz),
+			CameraType.EzArm => Object.Instantiate(PrefabManager.CameraEzArm),
+			CameraType.Sz    => Object.Instantiate(PrefabManager.CameraSz),
+			_                => throw new ArgumentOutOfRangeException()
+		};
+		
+		cameraObject.NetworkLabel = Properties["Label"].ToString();
+		cameraObject.NetworkHorizontalConstraint = Properties.TryGetValue("HorizontalConstraint", out object value) ? value.ToVector2() : Vector2.zero;
+		cameraObject.NetworkVerticalConstraint = Properties.TryGetValue("VerticalConstraint", out object value2) ? value2.ToVector2() : Vector2.zero;
+		cameraObject.NetworkZoomConstraint = Properties.TryGetValue("ZoomConstraint", out object value3) ? value3.ToVector2() : Vector2.zero;
+
+		return cameraObject.gameObject;
 	}
 }

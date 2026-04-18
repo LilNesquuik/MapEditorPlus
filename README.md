@@ -14,6 +14,10 @@ This fork focuses on implementing additional features, internal improvements, an
 ### Objects
 - 📦 **Clutter boxes**
   - Allows creating **wooden clutter boxes** that can be found in the **HCZ**
+- 🤳🏻 **Camera Toy**
+  - Allows spawning cameras with different types and configurations
+- ⚡ **Generator**
+  - Allows spawning generators via the toolGun
 - 🦫 **CapybaraToy**
   - Allows spawning a Capybara and you can enable or disable its collision
 - 🧿 **Trigger Zone**
@@ -47,6 +51,13 @@ Once your plugin will load, it will create directory `LapAPI/configs/ProjectMER`
 *To create your schematic we have also an forked version of the Unity Editor, that is available [here](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)*
 > [!IMPORTANT]
 > Make sure to stay on the branch **[Production](https://github.com/LilNesquuik/MapEditorPlus-UnityEditor/tree/production)**. the main branch are the original version of the editor.
+
+## 🗺️ Roadmap
+*This section is dedicated to the features that are planned to be implemented in the future.*
+
+- **ProjectMER.VisualScripting** 
+  - A visual scripting system for Project MER. 
+  - Linking interactables and objects to create complex interactions without writing code.
 
 ## 🙏🏻 Credits
 - Original Plugin made by **[Michal78900](https://github.com/Michal78900)**
