@@ -44,17 +44,7 @@ public class GenericEventsHandler : CustomEventsHandler
 		MapEditorObject randomElement = list[UnityEngine.Random.Range(0, list.Count)];
 
 		ev.SpawnLocation = randomElement.transform.position;
-		Timing.CallDelayed(0.05f, () =>
-		{
-			try
-			{
-				ev.Player.LookRotation = randomElement.transform.eulerAngles;
-			}
-			catch (Exception e)
-			{
-				Logger.Error(e);
-			}
-		});
+		ev.HorizontalRotation = randomElement.transform.eulerAngles.y;
 	}
 
 	public override void OnPlayerInteractingShootingTarget(PlayerInteractingShootingTargetEventArgs ev)

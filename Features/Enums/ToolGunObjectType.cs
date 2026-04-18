@@ -18,5 +18,6 @@ public enum ToolGunObjectType
 	Interactable = 13,
 	Waypoint = 14,
 	Clutter = 15,
-	Trigger = 16
+	Trigger = 16,
+	Generator = 17
 }

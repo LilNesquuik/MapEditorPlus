@@ -6,8 +6,10 @@ using CapybaraToy = AdminToys.CapybaraToy;
 
 namespace ProjectMER.Features.Serializable;
 
-public class SerializableCapybara : SerializableObject
+public sealed class SerializableCapybara : SerializableObject
 {
+	public bool CollisionsEnabled { get; set; } = true;
+	
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
 		CapybaraToy capybara = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Capybara) : instance.GetComponent<CapybaraToy>();
@@ -18,7 +20,7 @@ public class SerializableCapybara : SerializableObject
 		capybara.transform.SetPositionAndRotation(position, rotation);
 		capybara.transform.localScale = Scale;
 
-		capybara.NetworkCollisionsEnabled = true;
+		capybara.NetworkCollisionsEnabled = CollisionsEnabled;
 
 		if (instance == null)
 			NetworkServer.Spawn(capybara.gameObject);

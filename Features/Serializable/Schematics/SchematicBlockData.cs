@@ -7,6 +7,7 @@ using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
 using UnityEngine;
+using CameraType = ProjectMER.Features.Enums.CameraType;
 using CapybaraToy = AdminToys.CapybaraToy;
 using LightSourceToy = AdminToys.LightSourceToy;
 using Object = UnityEngine.Object;
@@ -16,6 +17,7 @@ using WaypointToy = AdminToys.WaypointToy;
 
 namespace ProjectMER.Features.Serializable.Schematics;
 
+[Serializable]
 public class SchematicBlockData
 {
 	public virtual string Name { get; set; }

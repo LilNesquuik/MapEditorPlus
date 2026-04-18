@@ -40,13 +40,13 @@ public static class ToolGunHandler
 
 		switch (serializableObject)
 		{
-			case SerializablePlayerSpawnpoint _:
+			case SerializablePlayerSpawnpoint:
 				{
 					serializableObject.Position = position + Vector3.up * 0.01f;
 					break;
 				}
 
-			case SerializableTeleport _:
+			case SerializableTeleport:
 				{
 					serializableObject.Position = position + Vector3.up;
 					break;
@@ -131,11 +131,11 @@ public static class ToolGunHandler
 		{
 			foreach (MapEditorObject meo in map.SpawnedObjects)
 			{
-				if (meo.Id == id)
-				{
-					mapEditorObject = meo;
-					return true;
-				}
+				if (meo.Id != id) 
+					continue;
+				
+				mapEditorObject = meo;
+				return true;
 			}
 		}
 
@@ -149,5 +149,5 @@ public static class ToolGunHandler
 
 	private static readonly CachedLayerMask ToolGunMask = new("Default", "Door", "CCTV");
 
-	private static Config Config => ProjectMER.Singleton.Config!;
+	private static Config Config => ProjectMER.Singleton.Config;
 }

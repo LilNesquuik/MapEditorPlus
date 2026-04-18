@@ -39,6 +39,7 @@ public class ToolGunItem
 		{ ToolGunObjectType.Waypoint, typeof(SerializableWaypoint) },
 		{ ToolGunObjectType.Clutter, typeof(SerializableClutter) },
 		{ ToolGunObjectType.Trigger, typeof(SerializableTrigger) },
+		{ ToolGunObjectType.Generator, typeof(SerializableGenerator) },
 	};
 
 	private ToolGunObjectType _selectedObjectToSpawn;
@@ -86,9 +87,14 @@ public class ToolGunItem
 
 		ItemDictionary.Add(toolGun.ItemSerial, new ToolGunItem(toolGun));
 
-		ToolGunEventsHandler toolGunHandler = ProjectMER.Singleton.ToolGunEventsHandler;
-		if (!toolGunHandler.IsRegistered)
-			toolGunHandler.IsRegistered = true;
+		ServerSpecificSettingsSync.SendOnJoinFilter = _ => false;
+		ServerSpecificSettingsSync.DefinedSettings =
+		[
+			new SSGroupHeader("MER+", false, "This section contains settings for the MER+ tool gun."),
+			new SSDropdownSetting(int.MaxValue, "Schematic Name", MapUtils.GetAvailableSchematicNames(), isServerOnly: true)
+		];
+
+		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(static x => x.IsToolGun(out ToolGunItem _)));
 		
 		return true;
 	}
@@ -103,13 +109,6 @@ public class ToolGunItem
 			player.RemoveItem(itemBase);
 			return true;
 		}
-		
-		if (ItemDictionary.Count == 0)
-		{
-			ToolGunEventsHandler toolGunHandler = ProjectMER.Singleton.ToolGunEventsHandler;
-			if (toolGunHandler.IsRegistered)
-				toolGunHandler.IsRegistered = false;
-		}
 
 		return false;
 	}
@@ -122,9 +121,9 @@ public class ToolGunItem
 	{
 		if (CreateMode)
 		{
-			ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, int.MaxValue, out SSDropdownSetting dropdownSetting);
+			SSDropdownSetting dropdownSetting = ServerSpecificSettingsSync.GetSettingOfUser<SSDropdownSetting>(player.ReferenceHub, int.MaxValue);
 			dropdownSetting.TryGetSyncSelectionText(out string schematicName);
-
+			
 			ToolGunHandler.CreateObject(player, SelectedObjectToSpawn, schematicName);
 			return;
 		}

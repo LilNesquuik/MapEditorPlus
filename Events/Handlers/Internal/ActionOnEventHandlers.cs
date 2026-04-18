@@ -39,6 +39,15 @@ public class ActionOnEventHandlers : CustomEventsHandler
 						continue;
 					}
 
+				case "loadif":
+				case "lif":
+					{
+						List<string> allMaps = ListPool<string>.Shared.Rent(Directory.GetFiles(ProjectMER.MapsDir).Select(Path.GetFileNameWithoutExtension));
+						HandleMapLoadingConditionally(argument, allMaps);
+						ListPool<string>.Shared.Return(allMaps);
+						continue;
+					}
+
 				case "unload":
 				case "unl":
 					{
@@ -82,6 +91,33 @@ public class ActionOnEventHandlers : CustomEventsHandler
 		foreach (string mapName in allMaps)
 		{
 			if (Regex.IsMatch(mapName, WildCardToRegular(argument)))
+				MapUtils.LoadMap(mapName);
+		}
+	}
+	
+	private void HandleMapLoadingConditionally(string argument, List<string> allMaps)
+	{
+		string mapPattern = argument;
+		string? condition = null;
+
+		int conditionIndex = argument.IndexOf('?');
+		if (conditionIndex >= 0)
+		{
+			mapPattern = argument.Substring(0, conditionIndex);
+			condition = argument.Substring(conditionIndex + 1);
+
+			if (!MapUtils.LoadedMaps.Keys.Contains(condition))
+				return;
+		}
+
+		string regex = WildCardToRegular(mapPattern);
+		
+		if (condition != null)
+			MapUtils.UnloadMap(condition);
+
+		foreach (string mapName in allMaps)
+		{
+			if (Regex.IsMatch(mapName, regex))
 				MapUtils.LoadMap(mapName);
 		}
 	}

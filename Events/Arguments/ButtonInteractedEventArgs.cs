@@ -5,7 +5,12 @@ using ProjectMER.Features.Objects;
 
 namespace ProjectMER.Events.Arguments;
 
-[Obsolete("Prefer using InteractableToy")]
+/// <summary>
+/// Represents an event that is fired when a button is interacted with.
+/// </summary>
+/// <remarks>
+/// We recommend using <see cref="InteractableToy"/> instead of this.
+/// </remarks>
 public class ButtonInteractedEventArgs : EventArgs, IPickupEvent, IPlayerEvent, ISchematicEvent
 {
 	public ButtonInteractedEventArgs(Pickup button, Player player, SchematicObject schematic)
