@@ -132,7 +132,7 @@ public class ProjectMER : Plugin<Config>
 
 	public override string Author => "LilNesquuik";
   
-	public override Version Version => new(2026, 2, 0, 0);
+	public override Version Version => new(2026, 2, 1, 0);
 
 	public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
 }
